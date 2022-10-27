@@ -1,0 +1,20 @@
+.runTransformations
+.#-----------------------------------------------------
+.input|xwiki/2.0
+.# Validate that non inline content is properly supported
+.#-----------------------------------------------------
+{{date date="2021/09/07 00:00"/}}
+.#-----------------------------------------------------
+.expect|event/1.0
+.#-----------------------------------------------------
+beginDocument
+beginMacroMarkerStandalone [date] [date=2021/09/07 00:00]
+beginFormat [NONE] [[class]=[date-macro]]
+onWord [07 / 09 / 2021]
+endFormat [NONE] [[class]=[date-macro]]
+endMacroMarkerStandalone [date] [date=2021/09/07 00:00]
+endDocument
+.#-----------------------------------------------------
+.expect|xhtml/1.0
+.#-----------------------------------------------------
+<span class="date-macro">07 / 09 / 2021</span>
