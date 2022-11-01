@@ -112,7 +112,6 @@ public class TaskObjectEventListener extends AbstractEventListener
 
         XDOM documentContent = document.getXDOM();
         List<MacroBlock> macros = documentContent.getBlocks(new MacroBlockMatcher("task"), Block.Axes.DESCENDANT);
-        document.obje
 
         List<BaseObject> taskObjects = new ArrayList<>(document.getXObjects(TASK_OBJECT_CLASS_REFERENCE));
         taskObjects.removeAll(Collections.singletonList(null));
