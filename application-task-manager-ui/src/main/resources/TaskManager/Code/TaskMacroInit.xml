@@ -127,7 +127,7 @@
       <code>require(['jquery', 'xwiki-meta'], function ($, xm) {
   let init = function () {
     console.log('Event called');
-    let isTaskMacroModal = !!$('.task-macro-id-parameter').length;
+    let isTaskMacroModal = !!$('.task-reference').length;
     if (isTaskMacroModal) {
       let modal = $('.modal');
       let idInput = modal.find("input[name='id']");

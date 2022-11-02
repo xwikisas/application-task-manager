@@ -1,3 +1,5 @@
+com.xwiki.taskmanager.internal.DefaultTaskManagerConfiguration
+com.xwiki.taskmanager.internal.TaskManagerConfigurationSource
 com.xwiki.taskmanager.internal.TaskObjectEventListener
 com.xwiki.taskmanager.internal.macro.TaskMacro
 com.xwiki.taskmanager.internal.macro.DateMacro

@@ -261,7 +261,7 @@
 #addReferenceToExtraTags($assignees 'taskAssignee')
 #addReferenceToExtraTags($creator 'taskCreator')
 #set ($columnsProperties = {
-  'description': {'type': 'text', 'size': 10},
+  'description': {'type': 'text', 'size': 10, 'html': true},
   'assignee': {'type': 'text', 'size': 10, 'html': true},
   'createDate': {'type': 'date', 'size': 10},
   'deadline': {'type': 'text', 'size': 10},

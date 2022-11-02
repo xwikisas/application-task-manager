@@ -20,7 +20,6 @@ package com.xwiki.taskmanager.internal;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,14 +29,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.slf4j.Logger;
+import org.xwiki.bridge.event.DocumentCreatingEvent;
 import org.xwiki.bridge.event.DocumentUpdatingEvent;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
@@ -49,17 +47,25 @@ import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.MacroBlock;
 import org.xwiki.rendering.block.XDOM;
 import org.xwiki.rendering.block.match.MacroBlockMatcher;
+import org.xwiki.rendering.macro.MacroContentParser;
+import org.xwiki.rendering.macro.MacroExecutionException;
+import org.xwiki.rendering.renderer.BlockRenderer;
+import org.xwiki.rendering.renderer.printer.DefaultWikiPrinter;
+import org.xwiki.rendering.renderer.printer.WikiPrinter;
+import org.xwiki.rendering.transformation.MacroTransformationContext;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xwiki.taskmanager.TaskManagerConfiguration;
 
 /**
  * Listener that will create/modify/remove the TaskObjects associated with the TaskMacros inside a page. The TaskObjects
  * are created to be used by the Task Report Macro.
  *
  * @version $Id$
+ * @since 1.0
  */
 @Component
 @Named("com.xwiki.taskmanager.internal.TaskObjectEventListener")
@@ -80,15 +86,10 @@ public class TaskObjectEventListener extends AbstractEventListener
 
     private static final String CREATE_DATE = "createDate";
 
-    private static final DateFormat CREATE_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
+    private static final String DATE = "date";
 
-    private static final DateFormat DEADLINE_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-
-    private static final Pattern MENTION_PATTERN = Pattern.compile("\\{\\{mention[^/]*reference=\"([^\"]+)\"[^/]*/}}",
-        Pattern.CASE_INSENSITIVE);
-
-    private static final Pattern DATE_PATTERN =
-        Pattern.compile("\\{\\{date[^/]*date=\"([^\"]+)\"[^/]*/}}", Pattern.CASE_INSENSITIVE);
+    private StringBuffer buffer = new StringBuffer();
+    private final WikiPrinter printer = new DefaultWikiPrinter(buffer);
 
     @Inject
     private DocumentReferenceResolver<String> resolver;
@@ -96,12 +97,26 @@ public class TaskObjectEventListener extends AbstractEventListener
     @Inject
     private Logger logger;
 
+    @Inject
+    private TaskManagerConfiguration configuration;
+
+    /**
+     * The parser used to parse the content of the task to extract the assignee and deadline.
+     */
+    @Inject
+    private MacroContentParser contentParser;
+
+    @Inject
+    @Named("xwiki/2.1")
+    private BlockRenderer renderer;
+
     /**
      * Default constructor.
      */
     public TaskObjectEventListener()
     {
-        super(TaskObjectEventListener.class.getName(), Collections.singletonList(new DocumentUpdatingEvent()));
+        super(TaskObjectEventListener.class.getName(), Arrays.asList(new DocumentUpdatingEvent(),
+            new DocumentCreatingEvent()));
     }
 
     @Override
@@ -136,19 +151,28 @@ public class TaskObjectEventListener extends AbstractEventListener
 
             String content = macro.getContent();
 
-            StringBuilder description = new StringBuilder();
-            List<DocumentReference> usersAssigned = extractAssignedUsers(content, description);
+            renderer.render(macro, printer);
 
-            object.set("assignee", usersAssigned, context);
+            object.set("description", printer.toString(), context);
 
-            content = description.toString();
-            description.setLength(0);
+            buffer.setLength(0);
 
-            Date deadline = extractDeadlineDate(content, description);
+            try {
+                XDOM parsedContent = getMacroContentXDOM(document, macro, content);
 
-            object.set("deadline", deadline, context);
+                List<DocumentReference> usersAssigned = extractAssignedUsers(parsedContent);
 
-            object.set("description", description.toString().trim(), context);
+                object.set("assignee", usersAssigned, context);
+
+                Date deadline = extractDeadlineDate(parsedContent);
+
+                object.set("deadline", deadline, context);
+            } catch (MacroExecutionException e) {
+                logger.warn(
+                    "Failed to parse the content of the macro with id [{}] and extract the assignee and deadline.",
+                    macroId);
+                continue;
+            }
 
             taskObjects.remove(object);
         }
@@ -156,6 +180,15 @@ public class TaskObjectEventListener extends AbstractEventListener
         for (BaseObject taskObject : taskObjects) {
             document.removeXObject(taskObject);
         }
+    }
+
+    private XDOM getMacroContentXDOM(XWikiDocument document, MacroBlock macro, String content)
+        throws MacroExecutionException
+    {
+        MacroTransformationContext macroContext = new MacroTransformationContext();
+        macroContext.setCurrentMacroBlock(macro);
+        macroContext.setSyntax(document.getSyntax());
+        return this.contentParser.parse(content, macroContext, true, false);
     }
 
     private void populateObjectWithMacroParams(XWikiContext context, Map<String, String> macroParams, BaseObject object)
@@ -169,10 +202,10 @@ public class TaskObjectEventListener extends AbstractEventListener
         String strCreateDate = macroParams.getOrDefault(CREATE_DATE, "");
         Date createDate;
         try {
-            createDate = CREATE_DATE_FORMAT.parse(strCreateDate);
+            createDate = new SimpleDateFormat(configuration.getStorageDateFormat()).parse(strCreateDate);
         } catch (ParseException e) {
             logger.warn("Failed to parse the createDate macro parameter [{}]. Expected format is [{}]",
-                strCreateDate, CREATE_DATE_FORMAT);
+                strCreateDate, configuration.getStorageDateFormat());
             createDate = new Date();
         }
         object.set(CREATE_DATE, createDate, context);
@@ -195,44 +228,30 @@ public class TaskObjectEventListener extends AbstractEventListener
         return object;
     }
 
-    private Date extractDeadlineDate(String description, StringBuilder newContent)
+    private Date extractDeadlineDate(XDOM taskContent)
     {
-        Matcher matcher = DATE_PATTERN.matcher(description);
-
         Date deadline = new Date();
-        int startIndex = 0;
-        if (matcher.find()) {
-            try {
-                deadline = DEADLINE_DATE_FORMAT.parse(matcher.group(1));
-            } catch (ParseException e) {
-                logger.warn("Failed to parse the deadline date [{}] of the Task macro! Expected format is [{}]",
-                    matcher.group(1), DEADLINE_DATE_FORMAT);
-            }
-            newContent.append(description, startIndex, matcher.start());
-            startIndex = matcher.end();
-        }
 
-        while (matcher.find()) {
-            newContent.append(description, startIndex, matcher.start());
-            startIndex = matcher.end();
+        MacroBlock macro = taskContent.getFirstBlock(new MacroBlockMatcher(DATE), Block.Axes.DESCENDANT);
+
+        String dateValue = macro.getParameters().get(DATE);
+        try {
+            deadline = new SimpleDateFormat(configuration.getStorageDateFormat()).parse(dateValue);
+        } catch (ParseException e) {
+            logger.warn("Failed to parse the deadline date [{}] of the Task macro! Expected format is [{}]",
+                dateValue, configuration.getStorageDateFormat());
         }
-        newContent.append(description, startIndex, description.length());
         return deadline;
     }
 
-    private List<DocumentReference> extractAssignedUsers(String description, StringBuilder newContent)
+    private List<DocumentReference> extractAssignedUsers(XDOM taskContent)
     {
-        Matcher matcher = MENTION_PATTERN.matcher(description);
-
         List<DocumentReference> usersAssigned = new ArrayList<>();
+        List<MacroBlock> macros = taskContent.getBlocks(new MacroBlockMatcher("mention"), Block.Axes.DESCENDANT);
 
-        int startIndex = 0;
-        while (matcher.find()) {
-            newContent.append(description, startIndex, matcher.start());
-            startIndex = matcher.end();
-            usersAssigned.add(resolver.resolve(matcher.group(1)));
+        for (MacroBlock macro : macros) {
+            usersAssigned.add(resolver.resolve(macro.getParameters().get("reference")));
         }
-        newContent.append(description, startIndex, description.length());
         return usersAssigned;
     }
 }

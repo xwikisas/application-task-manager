@@ -1,5 +1,3 @@
-package com.xwiki.taskmanager;
-
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,17 +17,28 @@ package com.xwiki.taskmanager;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package com.xwiki.taskmanager;
 
+import org.xwiki.component.annotation.Role;
 import org.xwiki.stability.Unstable;
 
 /**
- * Task reference for macro picker. The task macro needs a hidden picker that will inject a JavaScript file. This
- * code will fill some fields such as id, createDate, creator.
+ * The configuration of the Task Manager Application for the current wiki.
  *
- * @since 1.0
  * @version $Id$
+ * @since 1.0
  */
+@Role
 @Unstable
-public interface TaskReference
+public interface TaskManagerConfiguration
 {
+    /**
+     * @return the date format that should be used for storage.
+     */
+    String getStorageDateFormat();
+
+    /**
+     * @return the date format that should be used for displaying purposes.
+     */
+    String getDisplayDateFormat();
 }

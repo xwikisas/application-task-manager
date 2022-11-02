@@ -134,14 +134,15 @@
       let restURL = XWiki.currentDocument.getRestURL() + '/tasks/' + taskId + '?status=' + (checkbox.is(':checked') ? 'done' : 'onGoing');
 
       checkbox.prop("disabled", true);
+      let not = new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.inprogress')", "inprogress");
       $.ajax({
         url: restURL,
-        type: 'GET',
+        type: 'PUT',
         success: function() {
-          let not = new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.success')", "done");
+          not.replace(new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.success')", "done"));
         },
         error: function () {
-          let not = new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.restFail')", "error");
+          not.replace(new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.restFail')", "error"));
         },
         complete: function () {
           checkbox.prop("disabled", false);
@@ -268,7 +269,7 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>.date-macro {
+      <code>.xwiki-date {
   font-size: 1.1em;
   background: #ECEDF0;
   border-radius: 3px;

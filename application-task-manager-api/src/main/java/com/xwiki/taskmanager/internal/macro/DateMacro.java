@@ -22,8 +22,6 @@ package com.xwiki.taskmanager.internal.macro;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +30,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.FormatBlock;
@@ -43,11 +40,14 @@ import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
 import org.xwiki.skinx.SkinExtension;
 
+import com.xwiki.taskmanager.TaskManagerConfiguration;
 import com.xwiki.taskmanager.macro.DateMacroParameters;
 
 /**
- * Ur mom.
+ * A date macro that will display a specified date in pretty way and a configurable format.
+ *
  * @version $Id$
+ * @since 1.0
  */
 @Component
 @Named("date")
@@ -55,23 +55,19 @@ import com.xwiki.taskmanager.macro.DateMacroParameters;
 public class DateMacro extends AbstractMacro<DateMacroParameters>
 {
     /**
-     * Ur mom.
+     * The reference to the document that contains the necessary CSS for TaskManager macros.
      */
     public static final String SKIN_RESOURCES_DOCUMENT_REFERENCE = "TaskManager.Code.SkinExtensions";
-    private final List<String> parsableDates = Arrays.asList(
-        "yyyy-MM-dd",
-        "yyyy/MM/dd",
-        "yyyy/MM/dd hh:mm",
-        "MM/dd/yyyy",
-        "dd/MM/yyyy"
-    );
+
+    @Inject
+    private TaskManagerConfiguration configuration;
 
     @Inject
     @Named("ssx")
     private SkinExtension ssx;
 
     /**
-     * Ur mom.
+     * The default Constructor for the Date macro.
      */
     public DateMacro()
     {
@@ -91,17 +87,15 @@ public class DateMacro extends AbstractMacro<DateMacroParameters>
 
         Date paramDate = null;
         try {
-            paramDate = DateUtils.truncate(DateUtils.parseDate(parameters.getDate(),
-                    parsableDates.toArray(new String[0])),
-                Calendar.DAY_OF_MONTH);
+            paramDate = new SimpleDateFormat(configuration.getStorageDateFormat()).parse(parameters.getDate());
         } catch (ParseException e) {
             throw new MacroExecutionException("Failed to parse the given date!");
         }
 
-        String displayDate = new SimpleDateFormat("dd / MM / yyyy").format(paramDate);
+        String displayDate = new SimpleDateFormat(configuration.getDisplayDateFormat()).format(paramDate);
 
         Block returnBlock = new FormatBlock(Collections.singletonList(new WordBlock(displayDate)), Format.NONE);
-        returnBlock.setParameters(Collections.singletonMap("class", "date-macro"));
+        returnBlock.setParameters(Collections.singletonMap("class", "xwiki-date"));
 
         return Collections.singletonList(returnBlock);
     }

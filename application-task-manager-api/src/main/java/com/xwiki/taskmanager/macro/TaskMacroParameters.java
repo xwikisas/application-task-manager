@@ -26,8 +26,8 @@ import org.xwiki.properties.annotation.PropertyDisplayType;
 import com.xwiki.taskmanager.TaskReference;
 
 /**
- * Ur mom.
  * @version $Id$
+ * @since 1.0
  */
 public class TaskMacroParameters
 {
@@ -40,8 +40,7 @@ public class TaskMacroParameters
     private String status = "onGoing";
 
     /**
-     *
-     * @return ur mom
+     * @return the id of the task.
      */
     public String getId()
     {
@@ -49,8 +48,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @param id ur mom
+     * @param id the id of the task.
      */
     @PropertyDisplayHidden
     @PropertyDisplayType(TaskReference.class)
@@ -60,8 +58,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @return ur mom
+     * @return the creator of the task.
      */
     public String getCreator()
     {
@@ -69,8 +66,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @param creator ur mom
+     * @param creator the creator of the task.
      */
     @PropertyDisplayHidden
     public void setCreator(String creator)
@@ -79,8 +75,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @return ur mom
+     * @return the creation date of the task.
      */
     public String getCreateDate()
     {
@@ -88,8 +83,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @param createDate ur mom
+     * @param createDate the creation date of the task.
      */
     @PropertyDisplayHidden
     public void setCreateDate(String createDate)
@@ -98,8 +92,7 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @return ur mom
+     * @return the status of the task.
      */
     public String getStatus()
     {
@@ -107,10 +100,8 @@ public class TaskMacroParameters
     }
 
     /**
-     *
-     * @param status ur mom
+     * @param status the status of the task.
      */
-    @PropertyDisplayHidden
     public void setStatus(String status)
     {
         this.status = status;

@@ -47,8 +47,10 @@ import org.xwiki.skinx.SkinExtension;
 import com.xwiki.taskmanager.macro.TaskMacroParameters;
 
 /**
- * Ue mom.
+ * Task macro that will enable the users to assign tasks to each other.
+ *
  * @version $Id$
+ * @since 1.0
  */
 @Component
 @Named("task")
@@ -82,7 +84,7 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
     @Override
     public boolean supportsInlineMode()
     {
-        return true;
+        return false;
     }
 
     @Override

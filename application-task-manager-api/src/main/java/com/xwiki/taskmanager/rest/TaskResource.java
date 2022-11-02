@@ -22,7 +22,7 @@ package com.xwiki.taskmanager.rest;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.Encoded;
-import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -52,7 +52,7 @@ public interface TaskResource
      * @return 200 is the status has been changed successfully of 404 if the task was not found
      * @throws XWikiRestException when failing in retrieving the document or saving it
      */
-    @GET
+    @PUT
     Response changeTaskStatus(
         @PathParam("wikiName") String wikiName,
         @PathParam("spaceName") @Encoded String spaces,

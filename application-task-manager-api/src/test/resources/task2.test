@@ -32,9 +32,9 @@ onWord [deadline]
 onSpecialSymbol [:]
 onSpace
 beginMacroMarkerInline [date] [date=2021/09/07 00:00]
-beginFormat [NONE] [[class]=[date-macro]]
+beginFormat [NONE] [[class]=[xwiki-date]]
 onWord [07 / 09 / 2021]
-endFormat [NONE] [[class]=[date-macro]]
+endFormat [NONE] [[class]=[xwiki-date]]
 endMacroMarkerInline [date] [date=2021/09/07 00:00]
 endParagraph
 endMetaData [[non-generated-content]=[java.util.List<org.xwiki.rendering.block.Block>]]
@@ -45,4 +45,4 @@ endDocument
 .#-----------------------------------------------------
 .expect|xhtml/1.0
 .#-----------------------------------------------------
-<div class="task-macro"><input type="checkbox" data-taskId="someId" checked class="task-status"><div class="task-content"><p>Important task with the following deadline: <span class="date-macro">07 / 09 / 2021</span></p></div></div>
+<div class="task-macro"><input type="checkbox" data-taskId="someId" checked class="task-status"><div class="task-content"><p>Important task with the following deadline: <span class="xwiki-date">07 / 09 / 2021</span></p></div></div>

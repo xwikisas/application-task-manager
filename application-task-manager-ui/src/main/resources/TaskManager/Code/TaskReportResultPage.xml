@@ -163,7 +163,7 @@
         #break
       #end
     #end
-    #updateRow('description', $row, $taskObj)
+    #set($discard = $row.put('description', $rowDoc.getRenderedContentRestricted($taskObj.description, $rowDoc.syntax)))
     #updateRow('createDate', $row, $taskObj)
     #updateRow('deadline', $row, $taskObj)
     #updateRow('status', $row, $taskObj)

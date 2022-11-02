@@ -1,5 +1,3 @@
-package com.xwiki.taskmanager.macro;
-
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,36 +17,42 @@ package com.xwiki.taskmanager.macro;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package com.xwiki.taskmanager.internal;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-import java.util.Date;
+import org.xwiki.component.annotation.Component;
+import org.xwiki.configuration.ConfigurationSource;
 
-import org.xwiki.properties.annotation.PropertyDisplayType;
-import org.xwiki.properties.annotation.PropertyMandatory;
+import com.xwiki.taskmanager.TaskManagerConfiguration;
 
 /**
+ * The default implementation of {@link TaskManagerConfiguration}.
+ *
  * @version $Id$
  * @since 1.0
  */
-public class DateMacroParameters
+@Component
+@Singleton
+public class DefaultTaskManagerConfiguration implements TaskManagerConfiguration
 {
-    private String date;
+    private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm";
 
-    /**
-     * @return the string representation of the date.
-     */
-    public String getDate()
+    @Inject
+    @Named("taskmanager")
+    private ConfigurationSource configurationSource;
+
+    @Override
+    public String getStorageDateFormat()
     {
-        return date;
+        return this.configurationSource.getProperty("storageDateFormat", DEFAULT_DATE_FORMAT);
     }
 
-    /**
-     * @param date the string representation of the date.
-     */
-    @PropertyDisplayType(Date.class)
-    @PropertyMandatory
-    public void setDate(String date)
+    @Override
+    public String getDisplayDateFormat()
     {
-        this.date = date;
+        return this.configurationSource.getProperty("displayDateFormat", DEFAULT_DATE_FORMAT);
     }
 }
