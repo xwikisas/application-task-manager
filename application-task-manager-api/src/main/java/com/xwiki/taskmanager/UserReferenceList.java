@@ -1,5 +1,3 @@
-package com.xwiki.taskmanager.macro;
-
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,35 +17,21 @@ package com.xwiki.taskmanager.macro;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package com.xwiki.taskmanager;
 
-import org.xwiki.properties.annotation.PropertyDisplayType;
-import org.xwiki.properties.annotation.PropertyMandatory;
+import java.util.ArrayList;
 
-import com.xwiki.taskmanager.TaskDate;
+import org.xwiki.model.reference.EntityReference;
+import org.xwiki.stability.Unstable;
 
 /**
+ * Class representing a list of user references. This class is needed to declare a valid
+ * {@link org.xwiki.properties.annotation.PropertyDisplayType} in the macros that need a picker for multiple users.
+ *
  * @version $Id$
  * @since 1.0
  */
-public class DateMacroParameters
+@Unstable
+public class UserReferenceList extends ArrayList<EntityReference>
 {
-    private String date;
-
-    /**
-     * @return the string representation of the date.
-     */
-    public String getDate()
-    {
-        return date;
-    }
-
-    /**
-     * @param date the string representation of the date.
-     */
-    @PropertyDisplayType(TaskDate.class)
-    @PropertyMandatory
-    public void setDate(String date)
-    {
-        this.date = date;
-    }
 }

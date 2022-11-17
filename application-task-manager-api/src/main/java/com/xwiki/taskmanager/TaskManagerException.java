@@ -1,5 +1,3 @@
-package com.xwiki.taskmanager.macro;
-
 /*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
@@ -19,35 +17,21 @@ package com.xwiki.taskmanager.macro;
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-import org.xwiki.properties.annotation.PropertyDisplayType;
-import org.xwiki.properties.annotation.PropertyMandatory;
-
-import com.xwiki.taskmanager.TaskDate;
+package com.xwiki.taskmanager;
 
 /**
+ * Exception thrown by the Task Manager Application.
+ *
  * @version $Id$
- * @since 1.0
  */
-public class DateMacroParameters
+public class TaskManagerException extends Exception
 {
-    private String date;
-
     /**
-     * @return the string representation of the date.
+     * @param message the exception message.
+     * @param cause the cause of this exception.
      */
-    public String getDate()
+    public TaskManagerException(String message, Throwable cause)
     {
-        return date;
-    }
-
-    /**
-     * @param date the string representation of the date.
-     */
-    @PropertyDisplayType(TaskDate.class)
-    @PropertyMandatory
-    public void setDate(String date)
-    {
-        this.date = date;
+        super(message, cause);
     }
 }

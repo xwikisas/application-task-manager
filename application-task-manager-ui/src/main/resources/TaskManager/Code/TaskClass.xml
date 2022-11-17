@@ -46,7 +46,7 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <assignee>
+    <assignees>
       <cache>0</cache>
       <customDisplay/>
       <defaultValue/>
@@ -56,10 +56,10 @@
       <hint/>
       <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
-      <name>assignee</name>
+      <name>assignees</name>
       <number>3</number>
       <picker>1</picker>
-      <prettyName>assignee</prettyName>
+      <prettyName>assignees</prettyName>
       <relationalStorage>0</relationalStorage>
       <separator> </separator>
       <separators/>
@@ -70,7 +70,38 @@
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
-    </assignee>
+    </assignees>
+    <completeDate>
+      <customDisplay/>
+      <dateFormat>dd/MM/yyyy HH:mm:ss</dateFormat>
+      <disabled>0</disabled>
+      <emptyIsToday>1</emptyIsToday>
+      <hint/>
+      <name>completeDate</name>
+      <number>8</number>
+      <picker>1</picker>
+      <prettyName>completeDate</prettyName>
+      <size>20</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
+    </completeDate>
+    <completed>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayFormType>select</displayFormType>
+      <displayType/>
+      <hint/>
+      <name>completed</name>
+      <number>7</number>
+      <prettyName>completed</prettyName>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+    </completed>
     <createDate>
       <customDisplay/>
       <dateFormat>dd/MM/yyyy HH:mm:ss</dateFormat>
@@ -129,18 +160,21 @@
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
     </deadline>
     <description>
+      <contenttype>---</contenttype>
       <customDisplay/>
       <disabled>0</disabled>
+      <editor>---</editor>
       <hint/>
       <name>description</name>
-      <number>5</number>
+      <number>8</number>
       <picker>1</picker>
       <prettyName>description</prettyName>
-      <size>30</size>
+      <rows>5</rows>
+      <size>40</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
     </description>
     <id>
       <customDisplay/>
@@ -156,30 +190,5 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
     </id>
-    <status>
-      <cache>0</cache>
-      <customDisplay/>
-      <defaultValue>onGoing</defaultValue>
-      <disabled>0</disabled>
-      <displayType>select</displayType>
-      <freeText/>
-      <hint/>
-      <largeStorage>0</largeStorage>
-      <multiSelect>0</multiSelect>
-      <name>status</name>
-      <number>7</number>
-      <picker>1</picker>
-      <prettyName>status</prettyName>
-      <relationalStorage>0</relationalStorage>
-      <separator> </separator>
-      <separators>|, </separators>
-      <size>1</size>
-      <sort/>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <values>done=Finished|onGoing=Not Finished</values>
-      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-    </status>
   </class>
 </xwikidoc>

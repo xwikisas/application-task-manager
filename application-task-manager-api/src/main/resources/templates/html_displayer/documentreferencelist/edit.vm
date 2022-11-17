@@ -17,12 +17,9 @@
 ## Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 ## 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 ## ---------------------------------------------------------------------------
-
-#set ($discard = $xwiki.jsx.use('TaskManager.Code.TaskMacroInit', {'minify': 'false'}))
-
-<input
-  data-dateformat="$escapetool.xml($!services.taskmanager.storageDateFormat)" type="text" class="task-reference"
-  #foreach ($parameter in $displayer.parameters.entrySet())
-    $escapetool.xml($parameter.key)="$!escapetool.xml($parameter.value)"
-  #end
-/>
+#set ($parameters = {
+  'multiple': 'multiple'
+})
+#set ($discard = $parameters.putAll($displayer.parameters))
+#set ($parameters.value = $displayer.value)
+#pagePicker($parameters)

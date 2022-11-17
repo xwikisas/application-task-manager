@@ -130,8 +130,11 @@
     let taskId = $(this).data('taskid');
     if (taskId) {
       let checkbox = $(this);
+      let task = checkbox.parent('.task-macro');
+      let taskDocument = XWiki.Model.resolve(task.data('source'), XWiki.EntityType.DOCUMENT);
+      let baseURL = new XWiki.Document(taskDocument).getRestURL();
 
-      let restURL = XWiki.currentDocument.getRestURL() + '/tasks/' + taskId + '?status=' + (checkbox.is(':checked') ? 'done' : 'onGoing');
+      let restURL = baseURL + '/tasks/' + taskId + '?completed=' + (checkbox.is(':checked'));
 
       checkbox.prop("disabled", true);
       let not = new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.inprogress')", "inprogress");
@@ -158,7 +161,7 @@
       <name/>
     </property>
     <property>
-      <parse>0</parse>
+      <parse>1</parse>
     </property>
     <property>
       <use>onDemand</use>
@@ -282,7 +285,6 @@
 
 .task-macro {
   display: flex;
-  border: 1px solid;
 }
 
 .task-status {

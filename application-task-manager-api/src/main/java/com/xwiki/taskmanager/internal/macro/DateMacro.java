@@ -50,10 +50,14 @@ import com.xwiki.taskmanager.macro.DateMacroParameters;
  * @since 1.0
  */
 @Component
-@Named("date")
+@Named(DateMacro.MACRO_NAME)
 @Singleton
 public class DateMacro extends AbstractMacro<DateMacroParameters>
 {
+    /**
+     * The name of the macro.
+     */
+    public static final String MACRO_NAME = "date";
     /**
      * The reference to the document that contains the necessary CSS for TaskManager macros.
      */

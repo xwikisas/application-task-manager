@@ -20,14 +20,10 @@ package com.xwiki.taskmanager.internal;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -39,26 +35,17 @@ import org.xwiki.bridge.event.DocumentCreatingEvent;
 import org.xwiki.bridge.event.DocumentUpdatingEvent;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.observation.AbstractEventListener;
 import org.xwiki.observation.event.Event;
-import org.xwiki.rendering.block.Block;
-import org.xwiki.rendering.block.MacroBlock;
 import org.xwiki.rendering.block.XDOM;
-import org.xwiki.rendering.block.match.MacroBlockMatcher;
-import org.xwiki.rendering.macro.MacroContentParser;
-import org.xwiki.rendering.macro.MacroExecutionException;
-import org.xwiki.rendering.renderer.BlockRenderer;
-import org.xwiki.rendering.renderer.printer.DefaultWikiPrinter;
-import org.xwiki.rendering.renderer.printer.WikiPrinter;
-import org.xwiki.rendering.transformation.MacroTransformationContext;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-import com.xwiki.taskmanager.TaskManagerConfiguration;
+import com.xwiki.taskmanager.model.Task;
 
 /**
  * Listener that will create/modify/remove the TaskObjects associated with the TaskMacros inside a page. The TaskObjects
@@ -78,37 +65,15 @@ public class TaskObjectEventListener extends AbstractEventListener
     public static final LocalDocumentReference TASK_OBJECT_CLASS_REFERENCE =
         new LocalDocumentReference(Arrays.asList("TaskManager", "Code"), "TaskClass");
 
-    private static final String ID = "id";
-
-    private static final String CREATOR = "creator";
-
-    private static final String STATUS = "status";
-
-    private static final String CREATE_DATE = "createDate";
-
-    private static final String DATE = "date";
-
-    private StringBuffer buffer = new StringBuffer();
-    private final WikiPrinter printer = new DefaultWikiPrinter(buffer);
-
-    @Inject
-    private DocumentReferenceResolver<String> resolver;
-
     @Inject
     private Logger logger;
 
     @Inject
-    private TaskManagerConfiguration configuration;
-
-    /**
-     * The parser used to parse the content of the task to extract the assignee and deadline.
-     */
-    @Inject
-    private MacroContentParser contentParser;
+    @Named("compactwiki")
+    private EntityReferenceSerializer<String> serializer;
 
     @Inject
-    @Named("xwiki/2.1")
-    private BlockRenderer renderer;
+    private TaskExtractor taskExtractor;
 
     /**
      * Default constructor.
@@ -126,18 +91,14 @@ public class TaskObjectEventListener extends AbstractEventListener
         XWikiContext context = (XWikiContext) data;
 
         XDOM documentContent = document.getXDOM();
-        List<MacroBlock> macros = documentContent.getBlocks(new MacroBlockMatcher("task"), Block.Axes.DESCENDANT);
+
+        List<Task> tasks = this.taskExtractor.extract(documentContent);
 
         List<BaseObject> taskObjects = new ArrayList<>(document.getXObjects(TASK_OBJECT_CLASS_REFERENCE));
         taskObjects.removeAll(Collections.singletonList(null));
 
-        for (MacroBlock macro : macros) {
-            Map<String, String> macroParams = macro.getParameters();
-            String macroId = macroParams.get(ID);
-
-            if (macroId == null) {
-                continue;
-            }
+        for (Task task : tasks) {
+            String macroId = task.getId();
 
             BaseObject object = null;
             try {
@@ -147,32 +108,7 @@ public class TaskObjectEventListener extends AbstractEventListener
                 continue;
             }
 
-            populateObjectWithMacroParams(context, macroParams, object);
-
-            String content = macro.getContent();
-
-            renderer.render(macro, printer);
-
-            object.set("description", printer.toString(), context);
-
-            buffer.setLength(0);
-
-            try {
-                XDOM parsedContent = getMacroContentXDOM(document, macro, content);
-
-                List<DocumentReference> usersAssigned = extractAssignedUsers(parsedContent);
-
-                object.set("assignee", usersAssigned, context);
-
-                Date deadline = extractDeadlineDate(parsedContent);
-
-                object.set("deadline", deadline, context);
-            } catch (MacroExecutionException e) {
-                logger.warn(
-                    "Failed to parse the content of the macro with id [{}] and extract the assignee and deadline.",
-                    macroId);
-                continue;
-            }
+            populateObjectWithMacroParams(context, task, object);
 
             taskObjects.remove(object);
         }
@@ -182,33 +118,27 @@ public class TaskObjectEventListener extends AbstractEventListener
         }
     }
 
-    private XDOM getMacroContentXDOM(XWikiDocument document, MacroBlock macro, String content)
-        throws MacroExecutionException
+    private void populateObjectWithMacroParams(XWikiContext context, Task task, BaseObject object)
     {
-        MacroTransformationContext macroContext = new MacroTransformationContext();
-        macroContext.setCurrentMacroBlock(macro);
-        macroContext.setSyntax(document.getSyntax());
-        return this.contentParser.parse(content, macroContext, true, false);
-    }
+        object.set(Task.ID, task.getId(), context);
 
-    private void populateObjectWithMacroParams(XWikiContext context, Map<String, String> macroParams, BaseObject object)
-    {
-        object.set(ID, macroParams.get(ID), context);
+        object.set(Task.CREATOR, serializer.serialize(task.getCreator()), context);
 
-        object.set(CREATOR, resolver.resolve(macroParams.get(CREATOR)), context);
+        object.set(Task.STATUS, task.isCompleted() ? 1 : 0, context);
 
-        object.set(STATUS, macroParams.getOrDefault(STATUS, "onGoing"), context);
+        object.set(Task.CREATE_DATE, task.getCreateDate(), context);
 
-        String strCreateDate = macroParams.getOrDefault(CREATE_DATE, "");
-        Date createDate;
-        try {
-            createDate = new SimpleDateFormat(configuration.getStorageDateFormat()).parse(strCreateDate);
-        } catch (ParseException e) {
-            logger.warn("Failed to parse the createDate macro parameter [{}]. Expected format is [{}]",
-                strCreateDate, configuration.getStorageDateFormat());
-            createDate = new Date();
+        object.set(Task.DESCRIPTION, task.getDescription(), context);
+
+        List<String> serializedAssignees = new ArrayList<>(task.getAssignees().size());
+        for (DocumentReference assignee : task.getAssignees()) {
+            serializedAssignees.add(serializer.serialize(assignee));
         }
-        object.set(CREATE_DATE, createDate, context);
+        object.set(Task.ASSIGNEES, serializedAssignees, context);
+
+        object.set(Task.DEADLINE, task.getDeadline(), context);
+
+        object.set(Task.COMPLETE_DATE, task.getCompleteDate(), context);
     }
 
     private BaseObject findOrCreateAssociatedObject(List<BaseObject> taskObjects, String id, XWikiDocument document,
@@ -216,7 +146,7 @@ public class TaskObjectEventListener extends AbstractEventListener
     {
         Optional<BaseObject> objectOptional = taskObjects
             .stream()
-            .filter(obj -> obj.getStringValue(ID).equals(id))
+            .filter(obj -> obj.getStringValue(Task.ID).equals(id))
             .findFirst();
         BaseObject object;
 
@@ -226,32 +156,5 @@ public class TaskObjectEventListener extends AbstractEventListener
             object = document.newXObject(TASK_OBJECT_CLASS_REFERENCE, context);
         }
         return object;
-    }
-
-    private Date extractDeadlineDate(XDOM taskContent)
-    {
-        Date deadline = new Date();
-
-        MacroBlock macro = taskContent.getFirstBlock(new MacroBlockMatcher(DATE), Block.Axes.DESCENDANT);
-
-        String dateValue = macro.getParameters().get(DATE);
-        try {
-            deadline = new SimpleDateFormat(configuration.getStorageDateFormat()).parse(dateValue);
-        } catch (ParseException e) {
-            logger.warn("Failed to parse the deadline date [{}] of the Task macro! Expected format is [{}]",
-                dateValue, configuration.getStorageDateFormat());
-        }
-        return deadline;
-    }
-
-    private List<DocumentReference> extractAssignedUsers(XDOM taskContent)
-    {
-        List<DocumentReference> usersAssigned = new ArrayList<>();
-        List<MacroBlock> macros = taskContent.getBlocks(new MacroBlockMatcher("mention"), Block.Axes.DESCENDANT);
-
-        for (MacroBlock macro : macros) {
-            usersAssigned.add(resolver.resolve(macro.getParameters().get("reference")));
-        }
-        return usersAssigned;
     }
 }

@@ -38,7 +38,17 @@ import com.xwiki.taskmanager.TaskManagerConfiguration;
 @Singleton
 public class DefaultTaskManagerConfiguration implements TaskManagerConfiguration
 {
+    private static final String STORAGE_FORMAT_KEY = "storageDateFormat";
+
+    private static final String DISPLAY_FORMAT_KEY = "displayDateFormat";
+
     private static final String DEFAULT_DATE_FORMAT = "yyyy/MM/dd HH:mm";
+
+    private static final String PROPERTIES_PREFIX = "taskmanager.";
+
+    @Inject
+    @Named("xwikiproperties")
+    private ConfigurationSource xwikiProperties;
 
     @Inject
     @Named("taskmanager")
@@ -47,12 +57,20 @@ public class DefaultTaskManagerConfiguration implements TaskManagerConfiguration
     @Override
     public String getStorageDateFormat()
     {
-        return this.configurationSource.getProperty("storageDateFormat", DEFAULT_DATE_FORMAT);
+        if (this.configurationSource.containsKey(STORAGE_FORMAT_KEY)) {
+            return this.configurationSource.getProperty(STORAGE_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+        } else {
+            return this.xwikiProperties.getProperty(PROPERTIES_PREFIX + STORAGE_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+        }
     }
 
     @Override
     public String getDisplayDateFormat()
     {
-        return this.configurationSource.getProperty("displayDateFormat", DEFAULT_DATE_FORMAT);
+        if (this.configurationSource.containsKey(DISPLAY_FORMAT_KEY)) {
+            return this.configurationSource.getProperty(DISPLAY_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+        } else {
+            return this.xwikiProperties.getProperty(PROPERTIES_PREFIX + DISPLAY_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+        }
     }
 }

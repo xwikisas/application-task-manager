@@ -1,6 +1,9 @@
 com.xwiki.taskmanager.internal.DefaultTaskManagerConfiguration
+com.xwiki.taskmanager.internal.TaskExtractor
 com.xwiki.taskmanager.internal.TaskManagerConfigurationSource
 com.xwiki.taskmanager.internal.TaskObjectEventListener
+com.xwiki.taskmanager.internal.TaskQueryManager
 com.xwiki.taskmanager.internal.macro.TaskMacro
 com.xwiki.taskmanager.internal.macro.DateMacro
 com.xwiki.taskmanager.internal.rest.DefaultTaskResource
+com.xwiki.taskmanager.script.TaskManagerScriptService

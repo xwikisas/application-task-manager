@@ -23,6 +23,7 @@ package com.xwiki.taskmanager.macro;
 import org.xwiki.properties.annotation.PropertyDisplayHidden;
 import org.xwiki.properties.annotation.PropertyDisplayType;
 
+import com.xwiki.taskmanager.TaskDate;
 import com.xwiki.taskmanager.TaskReference;
 
 /**
@@ -37,7 +38,9 @@ public class TaskMacroParameters
 
     private String createDate;
 
-    private String status = "onGoing";
+    private boolean completed;
+
+    private String completeDate;
 
     /**
      * @return the id of the task.
@@ -94,16 +97,33 @@ public class TaskMacroParameters
     /**
      * @return the status of the task.
      */
-    public String getStatus()
+    public Boolean isCompleted()
     {
-        return status;
+        return completed;
     }
 
     /**
-     * @param status the status of the task.
+     * @param done the status of the task.
      */
-    public void setStatus(String status)
+    public void setCompleted(boolean done)
     {
-        this.status = status;
+        this.completed = done;
+    }
+
+    /**
+     * @return the date when the task has been completed.
+     */
+    public String getCompleteDate()
+    {
+        return completeDate;
+    }
+
+    /**
+     * @param completeDate the date when the task has been completed.
+     */
+    @PropertyDisplayType(TaskDate.class)
+    public void setCompleteDate(String completeDate)
+    {
+        this.completeDate = completeDate;
     }
 }

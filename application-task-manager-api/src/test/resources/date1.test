@@ -10,11 +10,11 @@
 beginDocument
 beginMacroMarkerStandalone [date] [date=2021/09/07 00:00]
 beginFormat [NONE] [[class]=[xwiki-date]]
-onWord [07 / 09 / 2021]
+onWord [2021/09/07 00:00]
 endFormat [NONE] [[class]=[xwiki-date]]
 endMacroMarkerStandalone [date] [date=2021/09/07 00:00]
 endDocument
 .#-----------------------------------------------------
 .expect|xhtml/1.0
 .#-----------------------------------------------------
-<span class="xwiki-date">07 / 09 / 2021</span>
+<span class="xwiki-date">2021/09/07 00:00</span>

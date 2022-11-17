@@ -20,6 +20,8 @@ package com.xwiki.taskmanager.internal.rest;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +43,8 @@ import org.xwiki.security.authorization.Right;
 
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xwiki.taskmanager.TaskManagerConfiguration;
+import com.xwiki.taskmanager.model.Task;
 import com.xwiki.taskmanager.rest.TaskResource;
 
 /**
@@ -57,8 +61,11 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
     @Inject
     private ContextualAuthorizationManager contextualAuthorizationManager;
 
+    @Inject
+    private TaskManagerConfiguration configuration;
+
     @Override
-    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String taskId, String status)
+    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String taskId, Boolean completed)
         throws XWikiRestException
     {
         DocumentReference docRef = new DocumentReference(pageName, getSpaceReference(spaces, wikiName));
@@ -73,14 +80,17 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
             List<MacroBlock> macros = documentContent.getBlocks(new MacroBlockMatcher("task"), Block.Axes.DESCENDANT);
 
             Optional<MacroBlock> selectedMacro = macros.stream()
-                .filter((macroBlock) -> macroBlock.getParameters().getOrDefault("id", "").equals(taskId))
+                .filter((macroBlock) -> macroBlock.getParameters().getOrDefault(Task.ID, "").equals(taskId))
                 .findFirst();
 
             if (!selectedMacro.isPresent()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            selectedMacro.get().setParameter("status", status);
+            String completeDate = new SimpleDateFormat(configuration.getStorageDateFormat()).format(new Date());
+            selectedMacro.get().setParameter(Task.STATUS, completed.toString());
+
+            selectedMacro.get().setParameter(Task.COMPLETE_DATE, completed ? completeDate : "");
 
             document.setContent(documentContent);
 

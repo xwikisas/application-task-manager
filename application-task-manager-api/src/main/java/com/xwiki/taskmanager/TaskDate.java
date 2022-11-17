@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,12 +16,18 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
--->
+ */
+package com.xwiki.taskmanager;
 
-<!DOCTYPE suppressions PUBLIC
-    "-//Puppy Crawl//DTD Suppressions 1.0//EN"
-    "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+import org.xwiki.stability.Unstable;
 
-<suppressions>
-  <suppress checks="ClassFanOutComplexity" files="TaskObjectEventListener.java"/>
-</suppressions>
+/**
+ * The date macro pickers will need to use the date format from the {@link TaskManagerConfiguration}.
+ *
+ * @since 1.0
+ * @version $Id$
+ */
+@Unstable
+public interface TaskDate
+{
+}

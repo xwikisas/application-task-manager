@@ -20,21 +20,15 @@
 
 package com.xwiki.taskmanager;
 
-import javax.inject.Named;
-
 import org.junit.runner.RunWith;
-import org.xwiki.component.descriptor.DefaultComponentDescriptor;
-import org.xwiki.rendering.configuration.RenderingConfiguration;
-import org.xwiki.rendering.internal.configuration.DefaultRenderingConfiguration;
-import org.xwiki.rendering.test.MockWikiModel;
+import org.xwiki.configuration.ConfigurationSource;
 import org.xwiki.rendering.test.integration.RenderingTestSuite;
-import org.xwiki.rendering.wiki.WikiModel;
+import org.xwiki.script.service.ScriptService;
 import org.xwiki.skinx.SkinExtension;
 import org.xwiki.test.annotation.AllComponents;
-import org.xwiki.test.junit5.mockito.MockComponent;
 import org.xwiki.test.mockito.MockitoComponentManager;
 
-import com.xwiki.taskmanager.internal.macro.DateMacro;
+import com.xwiki.taskmanager.script.TaskManagerScriptService;
 
 /**
  * Run all tests found in {@code *.test} files located in the classpath. These {@code *.test} files must follow the
@@ -53,5 +47,8 @@ public class IntegrationTests
     {
         componentManager.registerMockComponent(SkinExtension.class, "ssx");
         componentManager.registerMockComponent(SkinExtension.class, "jsx");
+        componentManager.registerMockComponent(ConfigurationSource.class, "taskmanager");
+        componentManager.registerMockComponent(ScriptService.class, "taskmanager");
+        componentManager.registerMockComponent(TaskManagerScriptService.class);
     }
 }

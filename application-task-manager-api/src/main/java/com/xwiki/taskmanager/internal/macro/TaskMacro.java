@@ -35,7 +35,9 @@ import org.xwiki.rendering.block.FormatBlock;
 import org.xwiki.rendering.block.GroupBlock;
 import org.xwiki.rendering.block.MetaDataBlock;
 import org.xwiki.rendering.block.RawBlock;
+import org.xwiki.rendering.block.match.MetadataBlockMatcher;
 import org.xwiki.rendering.listener.Format;
+import org.xwiki.rendering.listener.MetaData;
 import org.xwiki.rendering.macro.AbstractMacro;
 import org.xwiki.rendering.macro.MacroContentParser;
 import org.xwiki.rendering.macro.MacroExecutionException;
@@ -58,10 +60,9 @@ import com.xwiki.taskmanager.macro.TaskMacroParameters;
 public class TaskMacro extends AbstractMacro<TaskMacroParameters>
 {
     private static final String HTML_CLASS = "class";
+
     @Inject
     private MacroContentParser contentParser;
-
-    private final Map<String, String> blockParameters = new HashMap<>();
 
     @Inject
     @Named("ssx")
@@ -72,13 +73,12 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
     private SkinExtension jsx;
 
     /**
-     * Ur mom.
+     * Default constructor.
      */
     public TaskMacro()
     {
         super("name", "description", new DefaultContentDescriptor("Content of the task.", false,
             Block.LIST_BLOCK_TYPE), TaskMacroParameters.class);
-        blockParameters.put(HTML_CLASS, "task-macro");
     }
 
     @Override
@@ -100,6 +100,8 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
             return Collections.emptyList();
         }
 
+        Map<String, String> blockParameters = new HashMap<>();
+
         List<Block> macroContent = contentParser.parse(content, context, false, context.isInline())
             .getChildren();
 
@@ -107,9 +109,18 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
             Collections.singletonList(new MetaDataBlock(macroContent, this.getNonGeneratedContentMetaData()));
 
         ret = context.isInline() ? new FormatBlock() : new GroupBlock();
+        MetaDataBlock sourceBlock =
+            context.getCurrentMacroBlock().getFirstBlock(new MetadataBlockMatcher(MetaData.SOURCE),
+                Block.Axes.ANCESTOR);
+        String sourceDocument = "";
+        if (sourceBlock != null) {
+            sourceDocument = sourceBlock.getMetaData().getMetaData("source").toString();
+        }
+        blockParameters.put(HTML_CLASS, "task-macro");
+        blockParameters.put("data-source", sourceDocument);
         ret.setParameters(blockParameters);
         String htmlCheckbox = String.format("<input type=\"checkbox\" data-taskId=\"%s\" %s class=\"task-status\">",
-            parameters.getId(), parameters.getStatus().equals("done") ? "checked" : "");
+            parameters.getId(), parameters.isCompleted() ? "checked" : "");
         Block checkBoxBlock = new RawBlock(htmlCheckbox, Syntax.HTML_5_0);
 
         ret.addChild(new FormatBlock(Collections.singletonList(checkBoxBlock), Format.NONE));

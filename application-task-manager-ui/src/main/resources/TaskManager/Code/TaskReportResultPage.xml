@@ -38,14 +38,6 @@
   <hidden>true</hidden>
   <content>{{include reference="XWiki.LiveTableResultsMacros" /}}
 {{velocity output="false"}}
-## Add the display value of an object field to the specified row.
-#macro(updateRow $colname $row $object)
-    #set($fieldDisplayValue = "$!object.display($colname, 'view')")
-    #if($fieldDisplayValue == '')
-      #set($fieldDisplayValue = $services.localization.render("${request.transprefix}emptyvalue"))
-    #end
-    #set($discard = $row.put($colname, $fieldDisplayValue.replaceFirst($regextool.quote('{{html clean="false" wiki="false"}}'), '').replaceAll("$regextool.quote('{{/html}}')$", '')))
-#end
 ## Complete the SQL query so that it filters the UserReference properties.
 #macro(addUserFilter $sqlName $fieldName $isList)
   #set ($fromSql = "${fromSql}, LargeStringProperty ${sqlName}")
@@ -65,8 +57,7 @@
 #end
 {{/velocity}}
 {{velocity wiki="false"}}
-## &amp;&amp; "$!{request.outputSyntax}" == 'plain'
-#if($xcontext.action == 'get' )
+#if($xcontext.action == 'get' &amp;&amp; "$!{request.outputSyntax}" == 'plain')
   $response.setContentType('application/json')
   #set ($fromSql = ', StringProperty taskId')
   #set ($whereParams = {})
@@ -76,28 +67,28 @@
       #if ($foreach.count &gt; 1)
         #set ($spaceSql = "${spaceSql} OR ")
       #end
-      #set ($spaceSql = "$!{spaceSql}doc.space like :docspace${foreach.count} OR doc.space like CONCAT(:docspace${foreach.count}, '%')")
-      #set ($discard = $whereParams.put("docspace${foreach.count}", $space))
+      #if ($space.endsWith('.WebHome'))
+        #set ($space = $space.substring(0, $space.length() - 8))
+      #end
+      #set ($paramVal = $services.query.parameter().literal("$space.").anyChars())
+      #set ($spaceSql = "$!{spaceSql}doc.fullName like :docspace${foreach.count}")
+      #set ($discard = $whereParams.put("docspace${foreach.count}", $paramVal))
     #end
     #set ($whereSql = "AND (${spaceSql})")
   #end
   ## Add CreateDate filter.
-  #if("$!request.createDate" != '')
+  #if("$!request.createdAfter" != '')
     #set ($fromSql = "${fromSql}, DateProperty createDate")
-    #set ($whereSql = "$!{whereSql} AND createDate.id.id=obj.id AND createDate.id.name='createDate' AND createDate.id.value &gt;= :createDate")
-    #set ($discard = $whereParams.put('createDate', $datetool.toDate('yyyy/MM/dd', $request.createDate)))
+    #set ($whereSql = "$!{whereSql} AND createDate.id.id=obj.id AND createDate.id.name='createDate' AND createDate.id.value &gt;= :createdAfter")
+    #set ($discard = $whereParams.put('createdAfter', $datetool.toDate($services.taskmanager.storageDateFormat, $request.createdAfter)))
   #end
   ## Add assignee filter.
   #if("$!request.taskAssignee" != '')
-    #addUserFilter('assignee' 'taskAssignee' 1)
-  #end
-  ## Add assignee filter
-  #if("$!request.taskCreator" != '')
-    #addUserFilter('creator' 'taskCreator' 0)
+    #addUserFilter('assignees' 'taskAssignee' 1)
   #end
   #gridresultwithfilter_buildQuery("$!request.classname" $request.collist.split(',') $fromSql "AND taskId.id.id=obj.id AND taskId.id.name='id' $!{whereSql}" $whereParams)
-  #set ($sql = "SELECT doc.fullName, taskId.value FROM XWikiDocument doc ${sql}")
   #set($map = {})
+  #gridresult_buildTagCloudJSON($map)
   #set($discard = $map.put('reqNo', $numbertool.toNumber($request.reqNo).intValue()))
   #set($offset = $numbertool.toNumber($request.get('offset')).intValue())
   ## Offset starts from 0 in velocity and 1 in javascript
@@ -109,15 +100,14 @@
   #if(!$limit)
     #set ($limit = 15)
   #end
-  #set($query = $services.query.hql($sql))
-  #set ($query = $query.setLimit($limit).setOffset($offset).bindValues($sqlParams))
-  #set($items = $query.execute())
-  #set($discard = $map.put('totalrows', $items.size()))
+  ## Services call =========
+  #set ($items = $services.taskmanager.searchTasks($sql, $sqlParams, $offset, $limit))
+  #set($discard = $map.put('totalrows', $items.totalHits))
   #if ($limit &gt; 0)
-    #set($discard = $map.put('returnedrows', $mathtool.min($items.size(), $limit)))
+    #set($discard = $map.put('returnedrows', $mathtool.min($items.size, $limit)))
   #else
     ## When the limit is 0, it's equivalent to no limit at all and the actual number of returned results can be used.
-    #set($discard = $map.put('returnedrows', $items.size()))
+    #set($discard = $map.put('returnedrows', $items.size))
   #end
   #set($discard = $map.put('offset', $mathtool.add($offset, 1)))
 ##
@@ -126,49 +116,44 @@
   #set($lastDoc = '')
   #set($lastObjList = '')
   #foreach($item in $items)
-    #set($docName = $item[0])
-    #set($objId = $item[1])
-    #if ($lastDoc.fullName == $item[0])
-      #set ($rowDoc = $lastDoc)
-      #set ($taskObjects = $lastObjList)
-    #else
-      #set($rowDocRef = $services.model.resolveDocument($item[0]))
-      #set($rowDoc = $xwiki.getDocument($rowDocRef))
-      #set($lastDoc = $rowDoc)
-      #set($taskObjects = $rowDoc.getObjects('TaskManager.Code.TaskClass'))
-      #set($lastObjList = $taskObjects)
-    #end
+    #set($rowDocRef = $item.documentReference)
+    #set($objId = $item.id)
+    #set($rowDoc = $xwiki.getDocument($rowDocRef))
     #set($row = {})
-    #set ($row = {
-      'doc_title': $rowDoc.translatedDocument.plainTitle,
-      'doc_viewable': true,
-      'doc_fullName': $docName,
-      'doc_space': $services.model.serialize($rowDocRef, 'local'),
-      'doc_url': $xwiki.getURL($rowDocRef),
-      'doc_space_url': $xwiki.getURL($rowDocRef.parent),
-      'doc_wiki': $rowDocRef.wikiReference.name,
-      'doc_wiki_url': $xwiki.getURL($rowDocRef.wikiReference),
-      'doc_hasadmin': $xwiki.hasAdminRights(),
-      'doc_hasedit': $services.security.authorization.hasAccess('edit', $rowDocRef),
-      'doc_hasdelete': $services.security.authorization.hasAccess('delete', $rowDocRef),
-      'doc_edit_url': $xwiki.getURL($rowDocRef, 'edit'),
-      'doc_copy_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=copy'),
-      'doc_delete_url': $xwiki.getURL($rowDocRef, 'delete'),
-      'doc_rename_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=rename&amp;amp;step=1')
-    })
-
-    #foreach ($obj in $taskObjects)
-      #if ($obj.id == $objId)
-        #set($taskObj = $obj)
-        #break
+    #if ($rowDocRef)
+      #set ($row = {
+        'doc_title': $rowDoc.translatedDocument.plainTitle,
+        'doc_viewable': true,
+        'doc_fullName': $services.model.serialize($rowDocRef, 'local'),
+        'doc_space': $services.model.serialize($rowDocRef.parent, 'local'),
+        'doc_url': $xwiki.getURL($rowDocRef),
+        'doc_space_url': $xwiki.getURL($rowDocRef.parent),
+        'doc_wiki': $rowDocRef.wikiReference.name,
+        'doc_wiki_url': $xwiki.getURL($rowDocRef.wikiReference),
+        'doc_hasadmin': $xwiki.hasAdminRights(),
+        'doc_hasedit': $services.security.authorization.hasAccess('edit', $rowDocRef),
+        'doc_hasdelete': $services.security.authorization.hasAccess('delete', $rowDocRef),
+        'doc_edit_url': $xwiki.getURL($rowDocRef, 'edit'),
+        'doc_copy_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=copy'),
+        'doc_delete_url': $xwiki.getURL($rowDocRef, 'delete'),
+        'doc_rename_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=rename&amp;step=1')
+      })
+      #set($discard = $row.put('description', $rowDoc.getRenderedContentRestricted($item.description, $rowDoc.syntax)))
+      #set($discard = $row.put('createDate', $datetool.format($services.taskmanager.displayDateFormat, $item.createDate)))
+      #set($discard = $row.put('deadline', $datetool.format($services.taskmanager.displayDateFormat, $item.deadline)))
+      #set($discard = $row.put('completeDate', $datetool.format($services.taskmanager.displayDateFormat, $item.completeDate)))
+      #set($discard = $row.put('completed', $services.localization.render("taskmanager.livetable.completed.${item.completed}")))
+      #set ($creatorAvatar = "#displayUser($item.creator)")
+      #set ($creatorAvatar = $avcreatorAvataratar.trim())
+      #set($discard = $row.put('creator', $creatorAvatar))
+      #foreach ($assignee in $item.assignees)
+        #set ($avatar = "#displayUser($assignee)")
+        #set ($avatar = $avatar.trim())
+        #set($discard = $row.put('assignees', "${row.getOrDefault('assignees', '')}${avatar}"))
       #end
+    #else
+      #set($discard = $row.put('description', $services.localization.render('taskmanager.livetable.noRights')))
     #end
-    #set($discard = $row.put('description', $rowDoc.getRenderedContentRestricted($taskObj.description, $rowDoc.syntax)))
-    #updateRow('createDate', $row, $taskObj)
-    #updateRow('deadline', $row, $taskObj)
-    #updateRow('status', $row, $taskObj)
-    #updateRow('assignee', $row, $taskObj)
-    #updateRow('creator', $row, $taskObj)
     #set($discard = $rows.add($row))
   #end
   #set($discard = $map.put('rows', $rows))

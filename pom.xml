@@ -31,7 +31,7 @@
   <artifactId>application-task-manager</artifactId>
   <packaging>pom</packaging>
   <name>Task Manager Application</name>
-  <version>1.39-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <description>Create and manage tasks. The app can be purchased individually or part of the XWiki Pro package. Try it free.</description>
   <properties>
     <licensing.version>1.22.1</licensing.version>

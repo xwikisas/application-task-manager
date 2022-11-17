@@ -40,6 +40,117 @@
   <object>
     <name>TaskManager.Code.TaskReportMacro</name>
     <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>87a1e938-ceb0-461c-bf98-9c57aba9a721</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>require(['jquery'], function($) {
+  $(document).on('xwiki:livetable:loadingComplete', function (event, data) {
+    let tableId = '#' + data.tableId;
+    let tableTagCloudId = tableId + '-tagcloud';
+    let searchParams = new URLSearchParams($(tableId).data('settings').url);
+    var selectedTags = searchParams.getAll('tag');
+    $(tableTagCloudId + ' li.selectable').each(function() {
+      if (selectedTags.includes($(this).text().trim())) {
+        $(this).addClass('selected');
+      }
+    });
+  })
+});</code>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use/>
+    </property>
+  </object>
+  <object>
+    <name>TaskManager.Code.TaskReportMacro</name>
+    <number>0</number>
     <className>XWiki.WikiMacroClass</className>
     <guid>167f2129-0b79-4959-a5dd-8c6d172e5061</guid>
     <class>
@@ -57,7 +168,7 @@
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_cached</name>
-        <number>12</number>
+        <number>13</number>
         <prettyName>Cached</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -70,7 +181,7 @@
         <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>async_context</name>
-        <number>13</number>
+        <number>14</number>
         <prettyName>Context elements</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator>, </separator>
@@ -86,7 +197,7 @@
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_enabled</name>
-        <number>11</number>
+        <number>12</number>
         <prettyName>Asynchronous rendering</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -230,43 +341,56 @@
       <async_enabled>0</async_enabled>
     </property>
     <property>
-      <code>{{velocity output="false"}}
-#macro(addToExtraTags $paramValues $paramName)
-  #foreach ($param in $paramValues.split('(%20)*%2C(%20)*'))
-    #set ($extraParams = "$!{extraParams}&amp;${paramName}=${param}")
-  #end
-#end
-#macro(addReferenceToExtraTags $list $paramName)
-  #foreach ($item in $list)
-    #set ($extraParams = "$!{extraParams}&amp;${paramName}=${escapetool.url($item.reference)}")
-  #end
-#end
-{{/velocity}}
-{{velocity}}
-#set ($spaces = $escapetool.url($wikimacro.parameters.spaces))
-#set ($tags = $escapetool.url($wikimacro.parameters.labels))
-#set ($assignees = $wikimacro.parameters.assignees)
-#set ($creator = $wikimacro.parameters.creators)
-#set ($createdAfter = $escapetool.url($xcontext.macro.params.createddateFrom))
-#set ($status = $escapetool.url($wikimacro.parameters.status))
-#set ($pageSize = $escapetool.url($wikimacro.parameters.pageSize))
-#set ($sortBy = $escapetool.url($wikimacro.parameters.sortBy))
-#set ($displayColumns = $escapetool.url($wikimacro.parameters.columns))
+      <code>{{velocity}}
+#set ($spaces = $xcontext.macro.params.pages)
+#set ($tags = $wikimacro.parameters.tags)
+#set ($assignees = $xcontext.macro.params.assignees)
+#set ($creator = $xcontext.macro.params.creators)
+#set ($createdAfter = $xcontext.macro.params.createdAfter)
+#set ($completed = $wikimacro.parameters.completed)
+#set ($pageSize = $wikimacro.parameters.limit)
+#set ($sortBy = $wikimacro.parameters.sortBy)
+#set ($displayColumns = $wikimacro.parameters.columns)
 #set ($rowCount = $wikimacro.parameters.rowCount)
-#set ($columns = $displayColumns.split('\s*%2C\s*'))
-#set ($extraParams = "&amp;creator=$!{escapetool.url($creator.reference)}&amp;createDate=$!{createdAfter}&amp;status=$!{status}")
+#set ($tableId = $escapetool.xml($wikimacro.parameters.id))
+#if ("$!tableId" == '')
+  #set ($tableId = "$mathtool.random")
+  #set ($tableId = "task-report-$tableId.substring(2, 7)")
+#end
+#if ("$displayColumns" != '')
+  ## The displayable columns are description, duedate, assignee, location, completedate. We also need to add the creator, createDate and completed column
+  ## for the LiveTable to be able to filter them. They will be hidden.
+  #set ($displayColumns = "${displayColumns},creator,completed")
+#else
+  #set ($displayColumns = 'description')
+#end
+#set ($columns = $displayColumns.split('\s*,\s*'))
 #set ($rowCount = $numbertool.toNumber($rowCount).intValue())
-#addToExtraTags($tags 'tag')
-#addToExtraTags($spaces 'space')
-#addReferenceToExtraTags($assignees 'taskAssignee')
-#addReferenceToExtraTags($creator 'taskCreator')
+#if ($completed == 'true')
+  #set ($completed = 1)
+#else
+  #set ($completed = 0)
+#end
+#set ($extraParams = {
+  'space': $spaces.split('\s*,\s*'),
+  'createdAfter': $createdAfter,
+  'completed': $completed,
+  'creator/join_mode': 'or',
+  'taskAssignee': $assignees.split('\s*,\s*'),
+  'creator': $creator.split('\s*,\s*')
+})
+#if ("$!tags" != '')
+  #set ($discard = $extraParams.put('tag', $tags.split('\s*,\s*')))
+#end
 #set ($columnsProperties = {
   'description': {'type': 'text', 'size': 10, 'html': true},
-  'assignee': {'type': 'text', 'size': 10, 'html': true},
-  'createDate': {'type': 'date', 'size': 10},
-  'deadline': {'type': 'text', 'size': 10},
-  'status': {'type': 'list', 'size': 10},
-  'doc.title' : {'type': 'text', 'size': 10, 'link': 'view'}
+  'assignees': {'type': 'text', 'size': 10, 'html': true},
+  'deadline': {'type': 'date', 'size': 10},
+  'completeDate': {'type': 'date', 'size': 10},
+  'doc.title' : {'type': 'text', 'size': 10, 'link': 'view'},
+  'createDate': {'type': 'hidden'},
+  'completed': {'type': 'hidden'},
+  'creator': {'type': 'hidden'}
 })
 #set ($options = {
   'resultPage': 'TaskManager.Code.TaskReportResultPage',
@@ -275,9 +399,12 @@
   'tagCloud': true,
   'selectedColumn': $!sortBy,
   'rowCount': $rowCount,
-  'extraParams': "${extraParams}"
+  'extraParams': $escapetool.url($extraParams)
 })
-#livetable('tasks' $columns $columnsProperties $options)
+#livetable($tableId $columns $columnsProperties $options)
+#set ($discard = $xwiki.jsx.use('TaskManager.Code.TaskReportMacro'))
+#set ($discard = $xwiki.ssx.use('TaskManager.Code.SkinExtensions'))
+#set ($discard = $xwiki.jsx.use('TaskManager.Code.SkinExtensions'))
 {{/velocity}}</code>
     </property>
     <property>
@@ -380,10 +507,10 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>spaces</name>
+      <name>pages</name>
     </property>
     <property>
-      <type>java.lang.String</type>
+      <type>com.xwiki.taskmanager.DocumentReferenceList</type>
     </property>
   </object>
   <object>
@@ -458,7 +585,7 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>labels</name>
+      <name>tags</name>
     </property>
     <property>
       <type>java.lang.String</type>
@@ -539,7 +666,7 @@
       <name>assignees</name>
     </property>
     <property>
-      <type>java.util.List&lt;org.xwiki.user.UserReference&gt;</type>
+      <type>com.xwiki.taskmanager.UserReferenceList</type>
     </property>
   </object>
   <object>
@@ -617,7 +744,7 @@
       <name>creators</name>
     </property>
     <property>
-      <type>java.util.List&lt;org.xwiki.user.UserReference&gt;</type>
+      <type>com.xwiki.taskmanager.UserReferenceList</type>
     </property>
   </object>
   <object>
@@ -692,10 +819,10 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>createddateFrom</name>
+      <name>createdAfter</name>
     </property>
     <property>
-      <type>java.util.Date</type>
+      <type>com.xwiki.taskmanager.TaskDate</type>
     </property>
   </object>
   <object>
@@ -761,7 +888,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>onGoing</defaultValue>
+      <defaultValue>true</defaultValue>
     </property>
     <property>
       <description/>
@@ -770,10 +897,10 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>status</name>
+      <name>completed</name>
     </property>
     <property>
-      <type>java.lang.String</type>
+      <type>java.lang.Boolean</type>
     </property>
   </object>
   <object>
@@ -848,7 +975,7 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>pageSize</name>
+      <name>limit</name>
     </property>
     <property>
       <type>java.lang.Integer</type>
@@ -917,7 +1044,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>description,deadline,assignee,doc.title</defaultValue>
+      <defaultValue>description,deadline,assignees,doc.title</defaultValue>
     </property>
     <property>
       <description/>
@@ -1005,6 +1132,84 @@
     </property>
     <property>
       <name>sortBy</name>
+    </property>
+    <property>
+      <type>java.lang.String</type>
+    </property>
+  </object>
+  <object>
+    <name>TaskManager.Code.TaskReportMacro</name>
+    <number>9</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>aa559d9e-e4e4-4117-bedf-afa94620c704</guid>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <type>
+        <disabled>0</disabled>
+        <name>type</name>
+        <number>5</number>
+        <prettyName>Parameter type</prettyName>
+        <size>60</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </type>
+    </class>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description/>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>id</name>
     </property>
     <property>
       <type>java.lang.String</type>
