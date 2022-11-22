@@ -57,6 +57,7 @@ import com.xwiki.taskmanager.model.Task;
 @Singleton
 public class TaskQueryManager
 {
+    private static final String COMMA_DELIMITER_REGEX = "\\s*,\\s*";
     @Inject
     private QueryManager queryManager;
 
@@ -92,7 +93,8 @@ public class TaskQueryManager
         DocumentReference currentUserRef = context.getUserReference();
 
         try {
-            String sqlQuery = "SELECT doc.fullName, taskId.value FROM XWikiDocument doc " + shortTaskQuery;
+            StringBuilder selectQuery = createSelectQuery(shortTaskQuery);
+            String sqlQuery = selectQuery.append(shortTaskQuery).toString();
             Query query =
                 queryManager.createQuery(sqlQuery, Query.HQL).setLimit(limit).setOffset(offset)
                     .bindValues(params);
@@ -128,6 +130,22 @@ public class TaskQueryManager
         }
     }
 
+    private StringBuilder createSelectQuery(String shortTaskQuery)
+    {
+        StringBuilder select = new StringBuilder("SELECT distinct doc.fullName, taskId.value");
+        String from = " FROM XWikiDocument doc ";
+        int orderByLocation = shortTaskQuery.indexOf("order by");
+        if (orderByLocation >= 0) {
+            String orderByClause = shortTaskQuery.substring(orderByLocation);
+            String orderByValues = orderByClause.replaceAll("order by|asc|desc", "");
+            for (String s : orderByValues.trim().split(COMMA_DELIMITER_REGEX)) {
+                select.append(", ");
+                select.append(s);
+            }
+        }
+        return select.append(from);
+    }
+
     private void populateTask(String taskId, DocumentReference docRef, BaseObject taskObject, Task task)
     {
         task.setId(taskId);
@@ -142,7 +160,7 @@ public class TaskQueryManager
         task.setCreator(resolver.resolve(taskObject.getStringValue(Task.CREATOR)));
         List<DocumentReference> taskAssignees = new ArrayList<>();
 
-        for (String serializedAssignee : taskObject.getLargeStringValue(Task.ASSIGNEES).split("\\s*,\\s*")) {
+        for (String serializedAssignee : taskObject.getLargeStringValue(Task.ASSIGNEES).split(COMMA_DELIMITER_REGEX)) {
             if (!"".equals(serializedAssignee)) {
                 taskAssignees.add(resolver.resolve(serializedAssignee));
             }
