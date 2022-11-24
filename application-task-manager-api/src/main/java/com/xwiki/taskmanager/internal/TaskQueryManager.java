@@ -100,7 +100,8 @@ public class TaskQueryManager
                     .bindValues(params);
             List<Object[]> thing = query.execute();
 
-            List<Long> totalResults = query.addFilter(countFilter).execute();
+            Query countQuery = queryManager.createQuery(sqlQuery, Query.HQL).bindValues(params).addFilter(countFilter);
+            List<Long> totalResults = countQuery.execute();
 
             List<Task> taskResults = new ArrayList<>();
 
