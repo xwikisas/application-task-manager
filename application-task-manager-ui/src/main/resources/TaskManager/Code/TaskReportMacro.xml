@@ -40,117 +40,6 @@
   <object>
     <name>TaskManager.Code.TaskReportMacro</name>
     <number>0</number>
-    <className>XWiki.JavaScriptExtension</className>
-    <guid>87a1e938-ceb0-461c-bf98-9c57aba9a721</guid>
-    <class>
-      <name>XWiki.JavaScriptExtension</name>
-      <customClass/>
-      <customMapping/>
-      <defaultViewSheet/>
-      <defaultEditSheet/>
-      <defaultWeb/>
-      <nameField/>
-      <validationScript/>
-      <cache>
-        <cache>0</cache>
-        <defaultValue>long</defaultValue>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
-        <multiSelect>0</multiSelect>
-        <name>cache</name>
-        <number>5</number>
-        <prettyName>Caching policy</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>1</size>
-        <unmodifiable>0</unmodifiable>
-        <values>long|short|default|forbid</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </cache>
-      <code>
-        <contenttype>PureText</contenttype>
-        <disabled>0</disabled>
-        <editor>PureText</editor>
-        <name>code</name>
-        <number>2</number>
-        <prettyName>Code</prettyName>
-        <rows>20</rows>
-        <size>50</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-      </code>
-      <name>
-        <disabled>0</disabled>
-        <name>name</name>
-        <number>1</number>
-        <prettyName>Name</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-      </name>
-      <parse>
-        <disabled>0</disabled>
-        <displayFormType>select</displayFormType>
-        <displayType>yesno</displayType>
-        <name>parse</name>
-        <number>4</number>
-        <prettyName>Parse content</prettyName>
-        <unmodifiable>0</unmodifiable>
-        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-      </parse>
-      <use>
-        <cache>0</cache>
-        <disabled>0</disabled>
-        <displayType>select</displayType>
-        <freeText>forbidden</freeText>
-        <largeStorage>0</largeStorage>
-        <multiSelect>0</multiSelect>
-        <name>use</name>
-        <number>3</number>
-        <prettyName>Use this extension</prettyName>
-        <relationalStorage>0</relationalStorage>
-        <separator> </separator>
-        <separators>|, </separators>
-        <size>1</size>
-        <unmodifiable>0</unmodifiable>
-        <values>currentPage|onDemand|always</values>
-        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
-      </use>
-    </class>
-    <property>
-      <cache>long</cache>
-    </property>
-    <property>
-      <code>require(['jquery'], function($) {
-  $(document).on('xwiki:livetable:loadingComplete', function (event, data) {
-    let tableId = '#' + data.tableId;
-    let tableTagCloudId = tableId + '-tagcloud';
-    let searchParams = new URLSearchParams($(tableId).data('settings').url);
-    var selectedTags = searchParams.getAll('tag');
-    $(tableTagCloudId + ' li.selectable').each(function() {
-      if (selectedTags.includes($(this).text().trim())) {
-        $(this).addClass('selected');
-      }
-    });
-  })
-});</code>
-    </property>
-    <property>
-      <name/>
-    </property>
-    <property>
-      <parse/>
-    </property>
-    <property>
-      <use/>
-    </property>
-  </object>
-  <object>
-    <name>TaskManager.Code.TaskReportMacro</name>
-    <number>0</number>
     <className>XWiki.WikiMacroClass</className>
     <guid>167f2129-0b79-4959-a5dd-8c6d172e5061</guid>
     <class>
@@ -352,6 +241,15 @@
 #set ($displayColumns = $wikimacro.parameters.columns)
 #set ($rowCount = $wikimacro.parameters.limit)
 #set ($tableId = $escapetool.xml($wikimacro.parameters.id))
+#set ($spaceFilter = [])
+#foreach($space in $spaces.split('\s*,\s*'))
+  #set ($spaceRef = $services.model.resolveDocument($space))
+  #if ($spaceRef.name == 'WebHome')
+    #set ($discard = $spaceFilter.add($services.model.serialize($spaceRef.parent)))
+  #else
+    #set ($discard = $spaceFilter.add($services.model.serialize($spaceRef)))
+  #end
+#end
 #if ("$!tableId" == '')
   #set ($tableId = "$mathtool.random")
   #set ($tableId = "task-report-$tableId.substring(2, 7)")
@@ -371,7 +269,7 @@
   #set ($completed = 0)
 #end
 #set ($extraParams = {
-  'space': $spaces.split('\s*,\s*'),
+  'space': $spaceFilter,
   'createdAfter': $createdAfter,
   'completed': $completed,
   'creator/join_mode': 'or',
@@ -397,11 +295,11 @@
   'translationPrefix': 'taskmanager.livetable.',
   'tagCloud': true,
   'selectedColumn': $!sortBy,
+  'selectedTags': $tags.split('\s*,\s*'),
   'rowCount': $rowCount,
   'extraParams': $escapetool.url($extraParams)
 })
 #livetable($tableId $columns $columnsProperties $options)
-#set ($discard = $xwiki.jsx.use('TaskManager.Code.TaskReportMacro'))
 #set ($discard = $xwiki.ssx.use('TaskManager.Code.SkinExtensions'))
 #set ($discard = $xwiki.jsx.use('TaskManager.Code.SkinExtensions'))
 {{/velocity}}</code>

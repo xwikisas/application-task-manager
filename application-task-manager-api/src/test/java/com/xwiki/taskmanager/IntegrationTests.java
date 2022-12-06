@@ -30,6 +30,9 @@ import org.xwiki.test.mockito.MockitoComponentManager;
 
 import com.xwiki.taskmanager.script.TaskManagerScriptService;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 /**
  * Run all tests found in {@code *.test} files located in the classpath. These {@code *.test} files must follow the
  * conventions described in {@link org.xwiki.rendering.test.integration.TestDataParser}.
@@ -50,5 +53,7 @@ public class IntegrationTests
         componentManager.registerMockComponent(ConfigurationSource.class, "taskmanager");
         componentManager.registerMockComponent(ScriptService.class, "taskmanager");
         componentManager.registerMockComponent(TaskManagerScriptService.class);
+        ConfigurationSource prefs = componentManager.registerMockComponent(ConfigurationSource.class, "wiki");
+        when(prefs.getProperty("dateformat", "yyyy/MM/dd HH:mm")).thenReturn("yyyy/MM/dd HH:mm");
     }
 }

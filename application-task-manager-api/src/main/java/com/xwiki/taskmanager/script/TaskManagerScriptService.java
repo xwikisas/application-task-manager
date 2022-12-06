@@ -56,25 +56,18 @@ public class TaskManagerScriptService implements ScriptService
 
     @Inject
     private TaskQueryManager taskQueryManager;
-    /**
-     * @return the configured storage date format.
-     */
-    public String getStorageDateFormat()
-    {
-        return this.configuration.getStorageDateFormat();
-    }
 
     /**
-     * @return the configured display date format.
+     * @return the configuration of the application.
      */
-    public String getDisplayDateFormat()
+    public TaskManagerConfiguration getConfiguration()
     {
-        return this.configuration.getDisplayDateFormat();
+        return this.configuration;
     }
 
     /**
      * @param shortQuery the short version of a query (without SELECT) that retrieves the documents with Task
-     * objects, filtered in an arbitrary manner.
+     *     objects, filtered in an arbitrary manner.
      * @param params the parameters that will be injected in the query.
      * @param offset the offset of the query.
      * @param limit the limit of the resulting set returned by the query.

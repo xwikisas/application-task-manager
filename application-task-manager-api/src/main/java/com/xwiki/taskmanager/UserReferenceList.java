@@ -21,8 +21,8 @@ package com.xwiki.taskmanager;
 
 import java.util.ArrayList;
 
-import org.xwiki.model.reference.EntityReference;
 import org.xwiki.stability.Unstable;
+import org.xwiki.user.UserReference;
 
 /**
  * Class representing a list of user references. This class is needed to declare a valid
@@ -32,6 +32,6 @@ import org.xwiki.stability.Unstable;
  * @since 1.0
  */
 @Unstable
-public class UserReferenceList extends ArrayList<EntityReference>
+public class UserReferenceList extends ArrayList<UserReference>
 {
 }

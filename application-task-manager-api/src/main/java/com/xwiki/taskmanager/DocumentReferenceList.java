@@ -21,8 +21,7 @@ package com.xwiki.taskmanager;
 
 import java.util.ArrayList;
 
-import javax.xml.stream.events.EntityReference;
-
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
 
 /**
@@ -33,6 +32,6 @@ import org.xwiki.stability.Unstable;
  * @since 1.0
  */
 @Unstable
-public class DocumentReferenceList extends ArrayList<EntityReference>
+public class DocumentReferenceList extends ArrayList<DocumentReference>
 {
 }

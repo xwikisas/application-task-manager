@@ -51,26 +51,36 @@ public class DefaultTaskManagerConfiguration implements TaskManagerConfiguration
     private ConfigurationSource xwikiProperties;
 
     @Inject
+    @Named("wiki")
+    private ConfigurationSource preferencesConfiguration;
+
+    @Inject
     @Named("taskmanager")
     private ConfigurationSource configurationSource;
 
     @Override
     public String getStorageDateFormat()
     {
-        if (this.configurationSource.containsKey(STORAGE_FORMAT_KEY)) {
-            return this.configurationSource.getProperty(STORAGE_FORMAT_KEY, DEFAULT_DATE_FORMAT);
-        } else {
-            return this.xwikiProperties.getProperty(PROPERTIES_PREFIX + STORAGE_FORMAT_KEY, DEFAULT_DATE_FORMAT);
-        }
+        return getProperty(STORAGE_FORMAT_KEY, getDefaultDateFormat());
     }
 
     @Override
     public String getDisplayDateFormat()
     {
-        if (this.configurationSource.containsKey(DISPLAY_FORMAT_KEY)) {
-            return this.configurationSource.getProperty(DISPLAY_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+        return getProperty(DISPLAY_FORMAT_KEY, getDefaultDateFormat());
+    }
+
+    private String getDefaultDateFormat()
+    {
+        return preferencesConfiguration.getProperty("dateformat", DEFAULT_DATE_FORMAT);
+    }
+
+    private <T> T getProperty(String key, T defaultValue)
+    {
+        if (this.configurationSource.containsKey(key)) {
+            return this.configurationSource.getProperty(key, defaultValue);
         } else {
-            return this.xwikiProperties.getProperty(PROPERTIES_PREFIX + DISPLAY_FORMAT_KEY, DEFAULT_DATE_FORMAT);
+            return this.xwikiProperties.getProperty(PROPERTIES_PREFIX + key, defaultValue);
         }
     }
 }

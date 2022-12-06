@@ -55,6 +55,11 @@
   #end
   #set ($whereSql = "$!{whereSql} AND ${sqlName}.id.id=obj.id AND ${sqlName}.id.name='${sqlName}' AND ($userSql)")
 #end
+#macro(addUserDisplay $row $key $user)
+  #set ($avatar = "#displayUser($user)")
+  #set ($avatar = $avatar.trim())
+  #set($discard = $row.put($key, $avatar))
+#end
 {{/velocity}}
 {{velocity wiki="false"}}
 #if($xcontext.action == 'get' &amp;&amp; "$!{request.outputSyntax}" == 'plain')
@@ -67,9 +72,6 @@
       #if ($foreach.count &gt; 1)
         #set ($spaceSql = "${spaceSql} OR ")
       #end
-      #if ($space.endsWith('.WebHome'))
-        #set ($space = $space.substring(0, $space.length() - 8))
-      #end
       #set ($paramVal = $services.query.parameter().literal("$space.").anyChars())
       #set ($spaceSql = "$!{spaceSql}doc.fullName like :docspace${foreach.count}")
       #set ($discard = $whereParams.put("docspace${foreach.count}", $paramVal))
@@ -80,7 +82,7 @@
   #if("$!request.createdAfter" != '')
     #set ($fromSql = "${fromSql}, DateProperty createDate")
     #set ($whereSql = "$!{whereSql} AND createDate.id.id=obj.id AND createDate.id.name='createDate' AND createDate.id.value &gt;= :createdAfter")
-    #set ($discard = $whereParams.put('createdAfter', $datetool.toDate($services.taskmanager.storageDateFormat, $request.createdAfter)))
+    #set ($discard = $whereParams.put('createdAfter', $datetool.toDate($services.taskmanager.configuration.storageDateFormat, $request.createdAfter)))
   #end
   ## Add assignee filter.
   #if("$!request.taskAssignee" != '')
@@ -139,18 +141,12 @@
         'doc_rename_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=rename&amp;step=1')
       })
       #set($discard = $row.put('description', $rowDoc.getRenderedContentRestricted($item.description, $rowDoc.syntax)))
-      #set($discard = $row.put('createDate', $datetool.format($services.taskmanager.displayDateFormat, $item.createDate)))
-      #set($discard = $row.put('deadline', $datetool.format($services.taskmanager.displayDateFormat, $item.deadline)))
-      #set($discard = $row.put('completeDate', $datetool.format($services.taskmanager.displayDateFormat, $item.completeDate)))
+      #set($discard = $row.put('createDate', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.createDate)))
+      #set($discard = $row.put('deadline', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.deadline)))
+      #set($discard = $row.put('completeDate', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.completeDate)))
       #set($discard = $row.put('completed', $services.localization.render("taskmanager.livetable.completed.${item.completed}")))
-      #set ($creatorAvatar = "#displayUser($item.creator)")
-      #set ($creatorAvatar = $avcreatorAvataratar.trim())
-      #set($discard = $row.put('creator', $creatorAvatar))
-      #foreach ($assignee in $item.assignees)
-        #set ($avatar = "#displayUser($assignee)")
-        #set ($avatar = $avatar.trim())
-        #set($discard = $row.put('assignees', "${row.getOrDefault('assignees', '')}${avatar}"))
-      #end
+      #addUserDisplay($row 'creator' $item.creator)
+      #addUserDisplay($row 'assignees' $item.assignees)
     #else
       #set($discard = $row.put('description', $services.localization.render('taskmanager.livetable.noRights')))
     #end

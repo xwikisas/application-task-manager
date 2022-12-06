@@ -102,6 +102,8 @@ public class TaskExtractor
 
             String macroContent = macro.getContent();
 
+            // Store the macro as wiki syntax inside the task description, so we can display the rendered macro
+            // inside the live table.
             WikiPrinter printer = new DefaultWikiPrinter(new StringBuffer());
             renderer.render(macro, printer);
 

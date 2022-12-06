@@ -131,7 +131,7 @@
     if (taskId) {
       let checkbox = $(this);
       let task = checkbox.parent('.task-macro');
-      let taskDocument = XWiki.Model.resolve(task.data('source'), XWiki.EntityType.DOCUMENT);
+      let taskDocument = XWiki.Model.resolve(task.data('source'), XWiki.EntityType.DOCUMENT) || XWiki.currentDocument.documentReference;
       let baseURL = new XWiki.Document(taskDocument).getRestURL();
 
       let restURL = baseURL + '/tasks/' + taskId + '?completed=' + (checkbox.is(':checked'));

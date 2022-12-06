@@ -126,7 +126,7 @@
     <property>
       <code>require.config({
   paths: {
-    'moment-setup': new XWiki.Document(XWiki.Model.resolve('TaskManager.Code.MomentJSConfig', XWiki.EntityType.DOCUMENT)).getURL('jsx', 'minify=false'),
+    'moment-setup': new XWiki.Document(XWiki.Model.resolve('TaskManager.Code.MomentJSConfig', XWiki.EntityType.DOCUMENT)).getURL('jsx', 'minify=true'),
     'moment-jdateformatparser': "$services.webjars.url('moment-jdateformatparser', 'moment-jdateformatparser.min')"
   }
 });
@@ -143,10 +143,7 @@ require(['moment-setup'], function () {
         var dateFormat = moment().toMomentFormatString($(idInput).data('dateformat'));
         idInput.val(Math.random().toString(16).slice(2));
         createDateInput.val(moment(new Date()).format(dateFormat));
-        let creatorValue = xm.userReference.toString();
-        if (creatorValue.startsWith(xm.wiki + ':')) {
-          creatorValue = creatorValue.substring(xm.wiki.length + 1);
-        }
+        let creatorValue = xm.userReference.relativeTo(new XWiki.WikiReference(XWiki.currentWiki)).toString();
         creatorInput.val(creatorValue);
       }
     };

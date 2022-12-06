@@ -23,6 +23,7 @@ package com.xwiki.taskmanager;
  * Exception thrown by the Task Manager Application.
  *
  * @version $Id$
+ * @since 1.0
  */
 public class TaskManagerException extends Exception
 {

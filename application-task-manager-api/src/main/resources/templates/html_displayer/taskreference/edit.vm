@@ -18,10 +18,10 @@
 ## 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 ## ---------------------------------------------------------------------------
 
-#set ($discard = $xwiki.jsx.use('TaskManager.Code.TaskMacroInit', {'minify': 'false'}))
+#set ($discard = $xwiki.jsx.use('TaskManager.Code.TaskMacroInit', {'minify': $services.debug.isMinify()}))
 
 <input
-  data-dateformat="$escapetool.xml($!services.taskmanager.storageDateFormat)" type="text" class="task-reference"
+  data-dateformat="$escapetool.xml($!services.taskmanager.configuration.storageDateFormat)" type="text" class="task-reference"
   #foreach ($parameter in $displayer.parameters.entrySet())
     $escapetool.xml($parameter.key)="$!escapetool.xml($parameter.value)"
   #end
