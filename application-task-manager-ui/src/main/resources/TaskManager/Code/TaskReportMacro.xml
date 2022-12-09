@@ -231,7 +231,7 @@
     </property>
     <property>
       <code>{{velocity}}
-#set ($spaces = $xcontext.macro.params.pages)
+#set ($pages = $xcontext.macro.params.pages)
 #set ($tags = $wikimacro.parameters.tags)
 #set ($assignees = $xcontext.macro.params.assignees)
 #set ($creator = $xcontext.macro.params.creators)
@@ -242,13 +242,9 @@
 #set ($rowCount = $wikimacro.parameters.limit)
 #set ($tableId = $escapetool.xml($wikimacro.parameters.id))
 #set ($spaceFilter = [])
-#foreach($space in $spaces.split('\s*,\s*'))
-  #set ($spaceRef = $services.model.resolveDocument($space))
-  #if ($spaceRef.name == 'WebHome')
-    #set ($discard = $spaceFilter.add($services.model.serialize($spaceRef.parent)))
-  #else
-    #set ($discard = $spaceFilter.add($services.model.serialize($spaceRef)))
-  #end
+#foreach($page in $pages.split('\s*,\s*'))
+  #set ($pageRef = $services.model.resolveDocument($page))
+  #set ($discard = $spaceFilter.add($services.model.serialize($pageRef.lastSpaceReference)))
 #end
 #if ("$!tableId" == '')
   #set ($tableId = "$mathtool.random")
