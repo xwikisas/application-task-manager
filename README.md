@@ -1,6 +1,6 @@
 # Task Manager Application (Pro)
 
-This is an application for managing tasks and creating raports.
+This is an application for managing tasks and creating reports.
 
 * Project Lead: [Teo Caras](https://github.com/trrenty)
 * [Documentation](https://store.xwiki.com/xwiki/bin/view/Extension/TaskManagerApplication)
