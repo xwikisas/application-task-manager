@@ -24,11 +24,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,15 +41,14 @@ import org.xwiki.observation.EventListener;
 import org.xwiki.rendering.block.MacroBlock;
 import org.xwiki.rendering.block.XDOM;
 import org.xwiki.test.junit5.mockito.ComponentTest;
-import org.xwiki.test.junit5.mockito.MockComponent;
 import org.xwiki.test.mockito.MockitoComponentMockingRule;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-import com.xwiki.taskmanager.internal.TaskExtractor;
-import com.xwiki.taskmanager.internal.TaskObjectEventListener;
+import com.xwiki.taskmanager.internal.TaskProcessor;
+import com.xwiki.taskmanager.internal.TaskMacroUpdateEventListener;
 import com.xwiki.taskmanager.model.Task;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -62,17 +58,17 @@ import static org.mockito.Mockito.when;
 
 @ComponentTest
 @RunWith(MockitoJUnitRunner.class)
-public class TaskObjectEventListenerTests
+public class TaskMacroUpdateEventListenerTests
 {
     @Rule
     public final MockitoComponentMockingRule<EventListener> mocker =
-        new MockitoComponentMockingRule<>(TaskObjectEventListener.class);
+        new MockitoComponentMockingRule<>(TaskMacroUpdateEventListener.class);
 
     private EventListener listener;
 
     private DocumentReferenceResolver<String> resolver;
 
-    private TaskExtractor taskExtractor;
+    private TaskProcessor taskProcessor;
 
     private EntityReferenceSerializer<String> serializer;
 
@@ -103,7 +99,7 @@ public class TaskObjectEventListenerTests
     {
         this.listener = mocker.getComponentUnderTest();
 //        this.resolver = mocker.getInstance(DocumentReferenceResolver.TYPE_STRING);
-        this.taskExtractor = mocker.getInstance(TaskExtractor.class);
+        this.taskProcessor = mocker.getInstance(TaskProcessor.class);
         this.serializer = mocker.getInstance(EntityReferenceSerializer.TYPE_STRING);
 
         when(this.document.getXDOM()).thenReturn(this.docXDOM);
@@ -117,8 +113,8 @@ public class TaskObjectEventListenerTests
         task1.setDeadline(date1);
         task1.setCompleteDate(date1);
 
-        when(this.taskExtractor.extract(any())).thenReturn(Collections.singletonList(task1));
-        when(this.document.getXObjects(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE)).thenReturn(Collections.singletonList(obj1));
+        when(this.taskProcessor.extract(any(), any())).thenReturn(Collections.singletonList(task1));
+        when(this.document.getXObjects(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE)).thenReturn(Collections.singletonList(obj1));
         when(this.docXDOM.getBlocks(any(), any())).thenReturn(Collections.singletonList(macro1));
         when(this.serializer.serialize(adminRef)).thenReturn("XWiki.Admin");
         when(this.obj1.getStringValue("id")).thenReturn("someid1");
@@ -133,7 +129,7 @@ public class TaskObjectEventListenerTests
     {
         this.listener.onEvent(null, document, context);
 
-        verify(document, never()).newXObject(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
+        verify(document, never()).newXObject(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
 
         verify(obj1).set(Task.CREATOR, "XWiki.Admin", context);
         verify(obj1).set(Task.STATUS, task1.isCompleted(), context);
@@ -156,7 +152,7 @@ public class TaskObjectEventListenerTests
 
         this.listener.onEvent(null, document, context);
 
-        verify(document, never()).newXObject(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
+        verify(document, never()).newXObject(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
         verify(obj1).set(Task.ASSIGNEES, Arrays.asList("XWiki.Admin", "XWiki.User1"), context);
     }
 
@@ -164,12 +160,12 @@ public class TaskObjectEventListenerTests
     public void createMacroObjectTest() throws XWikiException, ParseException
     {
 
-        when(this.document.getXObjects(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE)).thenReturn(Collections.emptyList());
-        when(this.document.newXObject(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE, context)).thenReturn(obj1);
+        when(this.document.getXObjects(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE)).thenReturn(Collections.emptyList());
+        when(this.document.newXObject(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE, context)).thenReturn(obj1);
 
         this.listener.onEvent(null, document, context);
 
-        verify(document).newXObject(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
+        verify(document).newXObject(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE, context);
 
         verify(obj1).set(Task.CREATOR, "XWiki.Admin", context);
         verify(obj1).set(Task.STATUS, task1.isCompleted(), context);
@@ -183,7 +179,7 @@ public class TaskObjectEventListenerTests
 
     @Test
     public void removeMacroObjectWhenThereIsNoCorrespondingMacroOnPageTest() {
-        when(this.taskExtractor.extract(this.docXDOM)).thenReturn(Collections.emptyList());
+        when(this.taskProcessor.extract(this.docXDOM, any())).thenReturn(Collections.emptyList());
 
         this.listener.onEvent(null, document, context);
 

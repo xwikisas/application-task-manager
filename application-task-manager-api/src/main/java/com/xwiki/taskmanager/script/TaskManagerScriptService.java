@@ -32,7 +32,7 @@ import org.xwiki.stability.Unstable;
 
 import com.xwiki.taskmanager.TaskManagerConfiguration;
 import com.xwiki.taskmanager.TaskManagerException;
-import com.xwiki.taskmanager.internal.TaskExtractor;
+import com.xwiki.taskmanager.internal.TaskProcessor;
 import com.xwiki.taskmanager.internal.TaskQueryManager;
 import com.xwiki.taskmanager.model.Task;
 
@@ -52,7 +52,7 @@ public class TaskManagerScriptService implements ScriptService
     private TaskManagerConfiguration configuration;
 
     @Inject
-    private TaskExtractor taskExtractor;
+    private TaskProcessor taskProcessor;
 
     @Inject
     private TaskQueryManager taskQueryManager;

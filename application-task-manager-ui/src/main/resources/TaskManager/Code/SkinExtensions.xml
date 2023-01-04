@@ -128,7 +128,7 @@
   $(document).on('change', '.task-status', function() {
     console.log("Input just changed. It's data is: " + $(this).data('taskid'));
     let taskId = $(this).data('taskid');
-    if (taskId) {
+    if (taskId !== undefined) {
       let checkbox = $(this);
       let task = checkbox.parent('.task-macro');
       let taskDocument = XWiki.Model.resolve(task.data('source'), XWiki.EntityType.DOCUMENT) || XWiki.currentDocument.documentReference;

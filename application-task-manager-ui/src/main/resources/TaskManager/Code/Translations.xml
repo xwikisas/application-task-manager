@@ -44,7 +44,7 @@ taskmanager.notification.statusChange.inprogress=Changing status..
 taskmanager.livetable.description=Task
 taskmanager.livetable.deadline=Deadline
 taskmanager.livetable.assignees=Assignee(s)
-taskmanager.livetable.doc.title=Location
+taskmanager.livetable.owner=Location
 taskmanager.livetable.completeDate=Completed on
 taskmanager.livetable.noRights=You don't have view rights for the document that contains this task.
 

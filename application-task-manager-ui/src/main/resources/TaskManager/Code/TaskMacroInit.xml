@@ -141,7 +141,6 @@ require(['moment-setup'], function () {
         let createDateInput = modal.find("input[name='createDate']");
         let creatorInput = modal.find("input[name='creator']");
         var dateFormat = moment().toMomentFormatString($(idInput).data('dateformat'));
-        idInput.val(Math.random().toString(16).slice(2));
         createDateInput.val(moment(new Date()).format(dateFormat));
         let creatorValue = xm.userReference.relativeTo(new XWiki.WikiReference(XWiki.currentWiki)).toString();
         creatorInput.val(creatorValue);

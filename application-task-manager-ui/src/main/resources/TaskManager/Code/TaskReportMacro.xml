@@ -57,7 +57,7 @@
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_cached</name>
-        <number>13</number>
+        <number>12</number>
         <prettyName>Cached</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -70,7 +70,7 @@
         <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>async_context</name>
-        <number>14</number>
+        <number>13</number>
         <prettyName>Context elements</prettyName>
         <relationalStorage>0</relationalStorage>
         <separator>, </separator>
@@ -86,7 +86,7 @@
         <displayFormType>select</displayFormType>
         <displayType/>
         <name>async_enabled</name>
-        <number>12</number>
+        <number>11</number>
         <prettyName>Asynchronous rendering</prettyName>
         <unmodifiable>0</unmodifiable>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
@@ -264,14 +264,29 @@
 #else
   #set ($completed = 0)
 #end
+
+#if ($createdAfter)
+  #set ($dateFormat = $services.taskmanager.configuration.storageDateFormat)
+  #set ($dateTimeFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern($dateFormat))
+
+  #set ($startDate = $xwiki.jodatime.dateTime.parse($createdAfter, $dateTimeFormatter))
+  #set ($endDate = $startDate.plusYears(1000).millis)
+#end
+
+
 #set ($extraParams = {
   'space': $spaceFilter,
-  'createdAfter': $createdAfter,
   'completed': $completed,
   'creator/join_mode': 'or',
-  'taskAssignee': $assignees.split('\s*,\s*'),
+  'assignees': $assignees.split('\s*,\s*'),
+  'assignees/join_mode': 'or',
   'creator': $creator.split('\s*,\s*')
 })
+
+#if ($startDate)
+  #set ($discard = $extraParams.put('createDate', "${startDate.millis}-${endDate}"))
+#end
+
 #if ("$!tags" != '')
   #set ($discard = $extraParams.put('tag', $tags.split('\s*,\s*')))
 #end
@@ -280,13 +295,12 @@
   'assignees': {'type': 'text', 'size': 10, 'html': true},
   'deadline': {'type': 'date', 'size': 10},
   'completeDate': {'type': 'date', 'size': 10},
-  'doc.title' : {'type': 'text', 'size': 10, 'link': 'view'},
+  'owner' : {'type': 'text', 'size': 10, 'html': true, 'link': 'view'},
   'createDate': {'type': 'hidden'},
   'completed': {'type': 'hidden'},
   'creator': {'type': 'hidden'}
 })
 #set ($options = {
-  'resultPage': 'TaskManager.Code.TaskReportResultPage',
   'className': 'TaskManager.Code.TaskClass',
   'translationPrefix': 'taskmanager.livetable.',
   'tagCloud': true,
@@ -937,7 +951,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>description,deadline,assignees,doc.title</defaultValue>
+      <defaultValue>description,deadline,assignees,owner</defaultValue>
     </property>
     <property>
       <description/>

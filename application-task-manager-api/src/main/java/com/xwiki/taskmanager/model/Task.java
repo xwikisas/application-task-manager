@@ -36,6 +36,15 @@ import org.xwiki.stability.Unstable;
 public class Task
 {
     /**
+     * The name of the model.
+     */
+    public static final String NAME = "task";
+
+    /**
+     * The name of the OWNER field.
+     */
+    public static final String OWNER = "owner";
+    /**
      * The name of the ID field.
      */
     public static final String ID = "id";
@@ -75,7 +84,7 @@ public class Task
      */
     public static final String DESCRIPTION = "description";
 
-    private DocumentReference documentReference;
+    private DocumentReference owner;
 
     private String id;
 
@@ -96,17 +105,17 @@ public class Task
     /**
      * @return the reference of the document where this task resides.
      */
-    public DocumentReference getDocumentReference()
+    public DocumentReference getOwner()
     {
-        return documentReference;
+        return owner;
     }
 
     /**
-     * @param documentReference the reference of the document that contains this task.
+     * @param owner the reference of the document that contains this task.
      */
-    public void setDocumentReference(DocumentReference documentReference)
+    public void setOwner(DocumentReference owner)
     {
-        this.documentReference = documentReference;
+        this.owner = owner;
     }
 
     /**
