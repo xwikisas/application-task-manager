@@ -58,6 +58,7 @@ import com.xwiki.taskmanager.model.Task;
 public class TaskQueryManager
 {
     private static final String COMMA_DELIMITER_REGEX = "\\s*,\\s*";
+
     @Inject
     private QueryManager queryManager;
 
@@ -115,7 +116,8 @@ public class TaskQueryManager
                     XWikiDocument taskDoc = context.getWiki().getDocument(docRef, context);
 
                     BaseObject taskObject =
-                        taskDoc.getXObject(TaskObjectEventListener.TASK_OBJECT_CLASS_REFERENCE, Task.ID, taskId, false);
+                        taskDoc.getXObject(TaskMacroUpdateEventListener.TASK_OBJECT_CLASS_REFERENCE, Task.ID, taskId,
+                            false);
 
                     populateTask(taskId, docRef, taskObject, task);
                 }
@@ -150,7 +152,7 @@ public class TaskQueryManager
     private void populateTask(String taskId, DocumentReference docRef, BaseObject taskObject, Task task)
     {
         task.setId(taskId);
-        task.setDocumentReference(docRef);
+        task.setOwner(docRef);
         task.setDescription(taskObject.getStringValue(Task.DESCRIPTION));
         task.setCompleted(taskObject.getIntValue(Task.STATUS) == 1);
 

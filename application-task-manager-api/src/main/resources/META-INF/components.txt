@@ -1,7 +1,9 @@
 com.xwiki.taskmanager.internal.DefaultTaskManagerConfiguration
-com.xwiki.taskmanager.internal.TaskExtractor
+com.xwiki.taskmanager.internal.DefaultTaskCounter
+com.xwiki.taskmanager.internal.TaskProcessor
+com.xwiki.taskmanager.internal.TaskMacroUpdateEventListener
 com.xwiki.taskmanager.internal.TaskManagerConfigurationSource
-com.xwiki.taskmanager.internal.TaskObjectEventListener
+com.xwiki.taskmanager.internal.TaskObjectUpdateEventListener
 com.xwiki.taskmanager.internal.TaskQueryManager
 com.xwiki.taskmanager.internal.macro.TaskMacro
 com.xwiki.taskmanager.internal.macro.DateMacro

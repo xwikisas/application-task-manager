@@ -21,6 +21,7 @@ package com.xwiki.taskmanager.internal.rest;
  */
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ import javax.ws.rs.core.Response;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.MacroBlock;
 import org.xwiki.rendering.block.XDOM;
@@ -43,6 +45,7 @@ import org.xwiki.security.authorization.Right;
 
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
+import com.xpn.xwiki.objects.BaseObject;
 import com.xwiki.taskmanager.TaskManagerConfiguration;
 import com.xwiki.taskmanager.model.Task;
 import com.xwiki.taskmanager.rest.TaskResource;
@@ -58,6 +61,8 @@ import com.xwiki.taskmanager.rest.TaskResource;
 @Singleton
 public class DefaultTaskResource extends ModifiablePageResource implements TaskResource
 {
+    private static final LocalDocumentReference TASK_OBJECT_CLASS_REFERENCE =
+        new LocalDocumentReference(Arrays.asList("TaskManager", "Code"), "TaskClass");
     @Inject
     private ContextualAuthorizationManager contextualAuthorizationManager;
 
@@ -77,23 +82,27 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
         try {
             XWikiDocument document = getXWikiContext().getWiki().getDocument(docRef, getXWikiContext()).clone();
             XDOM documentContent = document.getXDOM();
-            List<MacroBlock> macros = documentContent.getBlocks(new MacroBlockMatcher("task"), Block.Axes.DESCENDANT);
+            List<MacroBlock> macros =
+                documentContent.getBlocks(new MacroBlockMatcher(Task.NAME), Block.Axes.DESCENDANT);
 
             Optional<MacroBlock> selectedMacro = macros.stream()
                 .filter((macroBlock) -> macroBlock.getParameters().getOrDefault(Task.ID, "").equals(taskId))
                 .findFirst();
-
-            if (!selectedMacro.isPresent()) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-
             String completeDate = new SimpleDateFormat(configuration.getStorageDateFormat()).format(new Date());
-            selectedMacro.get().setParameter(Task.STATUS, completed.toString());
 
-            selectedMacro.get().setParameter(Task.COMPLETE_DATE, completed ? completeDate : "");
+            if (selectedMacro.isPresent()) {
+                selectedMacro.get().setParameter(Task.STATUS, completed.toString());
+                selectedMacro.get().setParameter(Task.COMPLETE_DATE, completed ? completeDate : "");
 
-            document.setContent(documentContent);
-
+                document.setContent(documentContent);
+            } else {
+                BaseObject taskObject = document.getXObject(TASK_OBJECT_CLASS_REFERENCE);
+                if (taskObject == null || !taskId.equals(taskObject.getStringValue(Task.ID))) {
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                }
+                taskObject.set(Task.STATUS, completed.toString(), getXWikiContext());
+                taskObject.set(Task.COMPLETE_DATE, completed ? completeDate : "", getXWikiContext());
+            }
             getXWikiContext().getWiki().saveDocument(document, "Changed task status!", getXWikiContext());
 
             return Response.ok().build();
