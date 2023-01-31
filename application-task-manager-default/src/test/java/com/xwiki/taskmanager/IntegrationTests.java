@@ -20,14 +20,20 @@
 
 package com.xwiki.taskmanager;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.runner.RunWith;
 import org.xwiki.configuration.ConfigurationSource;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.rendering.test.integration.RenderingTestSuite;
 import org.xwiki.script.service.ScriptService;
 import org.xwiki.skinx.SkinExtension;
 import org.xwiki.test.annotation.AllComponents;
 import org.xwiki.test.mockito.MockitoComponentManager;
 
+import com.xwiki.taskmanager.model.Task;
 import com.xwiki.taskmanager.script.TaskManagerScriptService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,6 +59,15 @@ public class IntegrationTests
         componentManager.registerMockComponent(ConfigurationSource.class, "taskmanager");
         componentManager.registerMockComponent(ScriptService.class, "taskmanager");
         componentManager.registerMockComponent(TaskManagerScriptService.class);
+        TaskManager taskManager = componentManager.registerMockComponent(TaskManager.class);
+        Task task = new Task();
+        task.setReference(new DocumentReference("xwiki", "Sandbox", "Task"));
+        task.setName("Test name");
+        task.setDuedate(new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2023"));
+        task.setNumber(1);
+        task.setAssignee(new DocumentReference("xwiki", "XWiki", "User1"));
+        task.setStatus("done");
+        when(taskManager.getTaskByReference(any())).thenReturn(task);
         ConfigurationSource prefs = componentManager.registerMockComponent(ConfigurationSource.class, "wiki");
         when(prefs.getProperty("dateformat", "yyyy/MM/dd HH:mm")).thenReturn("yyyy/MM/dd HH:mm");
     }

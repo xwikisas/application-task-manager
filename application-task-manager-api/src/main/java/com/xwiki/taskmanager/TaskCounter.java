@@ -23,7 +23,7 @@ import org.xwiki.component.annotation.Role;
 import org.xwiki.stability.Unstable;
 
 /**
- * Counter that handles the id generation for the tasks.
+ * Counter that handles the number generation for the tasks.
  *
  * @version $Id$
  * @since 1.0
@@ -33,8 +33,7 @@ import org.xwiki.stability.Unstable;
 public interface TaskCounter
 {
     /**
-     * Retrieve the next valid ID that can be assigned to a task.
-     * @return a unassigned task ID.
+     * @return the next valid number for a task. -1 if the retrieval failed.
      */
-    int getAndIncrement();
+    int getNextNumber();
 }

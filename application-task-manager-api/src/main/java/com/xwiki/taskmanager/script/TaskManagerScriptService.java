@@ -19,22 +19,15 @@
  */
 package com.xwiki.taskmanager.script;
 
-import java.util.Map;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
-import org.xwiki.extension.repository.result.CollectionIterableResult;
 import org.xwiki.script.service.ScriptService;
 import org.xwiki.stability.Unstable;
 
 import com.xwiki.taskmanager.TaskManagerConfiguration;
-import com.xwiki.taskmanager.TaskManagerException;
-import com.xwiki.taskmanager.internal.TaskProcessor;
-import com.xwiki.taskmanager.internal.TaskQueryManager;
-import com.xwiki.taskmanager.model.Task;
 
 /**
  * Script service for retrieving information about the Task Manager Application.
@@ -51,32 +44,11 @@ public class TaskManagerScriptService implements ScriptService
     @Inject
     private TaskManagerConfiguration configuration;
 
-    @Inject
-    private TaskProcessor taskProcessor;
-
-    @Inject
-    private TaskQueryManager taskQueryManager;
-
     /**
      * @return the configuration of the application.
      */
     public TaskManagerConfiguration getConfiguration()
     {
         return this.configuration;
-    }
-
-    /**
-     * @param shortQuery the short version of a query (without SELECT) that retrieves the documents with Task
-     *     objects, filtered in an arbitrary manner.
-     * @param params the parameters that will be injected in the query.
-     * @param offset the offset of the query.
-     * @param limit the limit of the resulting set returned by the query.
-     * @return a list of Task objects, alongside the offset and the total possible entries.
-     * @throws TaskManagerException if the task query fails or returns documents that can't be resolved.
-     */
-    public CollectionIterableResult<Task> searchTasks(String shortQuery, Map<String, Object> params, int offset,
-        int limit) throws TaskManagerException
-    {
-        return taskQueryManager.searchTasks(shortQuery, params, offset, limit);
     }
 }

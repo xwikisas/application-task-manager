@@ -32,49 +32,49 @@ import com.xwiki.taskmanager.TaskReference;
  */
 public class TaskMacroParameters
 {
-    private String id;
+    private String reference;
 
-    private String creator;
+    private String reporter;
 
     private String createDate;
 
-    private boolean completed;
+    private String status;
 
     private String completeDate;
 
     /**
      * @return the id of the task.
      */
-    public String getId()
+    public String getReference()
     {
-        return id;
+        return reference;
     }
 
     /**
-     * @param id the id of the task.
+     * @param reference the id of the task.
      */
     @PropertyDisplayHidden
     @PropertyDisplayType(TaskReference.class)
-    public void setId(String id)
+    public void setReference(String reference)
     {
-        this.id = id;
+        this.reference = reference;
     }
 
     /**
      * @return the creator of the task.
      */
-    public String getCreator()
+    public String getReporter()
     {
-        return creator;
+        return reporter;
     }
 
     /**
-     * @param creator the creator of the task.
+     * @param reporter the creator of the task.
      */
     @PropertyDisplayHidden
-    public void setCreator(String creator)
+    public void setReporter(String reporter)
     {
-        this.creator = creator;
+        this.reporter = reporter;
     }
 
     /**
@@ -97,17 +97,17 @@ public class TaskMacroParameters
     /**
      * @return the status of the task.
      */
-    public Boolean isCompleted()
+    public String getStatus()
     {
-        return completed;
+        return status;
     }
 
     /**
-     * @param done the status of the task.
+     * @param status the status of the task.
      */
-    public void setCompleted(boolean done)
+    public void setStatus(String status)
     {
-        this.completed = done;
+        this.status = status;
     }
 
     /**

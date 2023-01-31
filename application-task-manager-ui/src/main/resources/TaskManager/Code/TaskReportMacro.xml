@@ -234,9 +234,9 @@
 #set ($pages = $xcontext.macro.params.pages)
 #set ($tags = $wikimacro.parameters.tags)
 #set ($assignees = $xcontext.macro.params.assignees)
-#set ($creator = $xcontext.macro.params.creators)
+#set ($creator = $xcontext.macro.params.reporters)
 #set ($createdAfter = $xcontext.macro.params.createdAfter)
-#set ($completed = $wikimacro.parameters.completed)
+#set ($status = $wikimacro.parameters.status)
 #set ($sortBy = $wikimacro.parameters.sortBy)
 #set ($displayColumns = $wikimacro.parameters.columns)
 #set ($rowCount = $wikimacro.parameters.limit)
@@ -251,19 +251,14 @@
   #set ($tableId = "task-report-$tableId.substring(2, 7)")
 #end
 #if ("$displayColumns" != '')
-  ## The displayable columns are description, duedate, assignee, location, completedate. We also need to add the creator, createDate and completed column
+  ## The displayable columns are render, duedate, assignee, location, completedate. We also need to add the reporter, createDate and status column
   ## for the LiveTable to be able to filter them. They will be hidden.
-  #set ($displayColumns = "${displayColumns},creator,completed")
+  #set ($displayColumns = "${displayColumns},reporter,status")
 #else
-  #set ($displayColumns = 'description')
+  #set ($displayColumns = 'render')
 #end
 #set ($columns = $displayColumns.split('\s*,\s*'))
 #set ($rowCount = $numbertool.toNumber($rowCount).intValue())
-#if ($completed == 'true')
-  #set ($completed = 1)
-#else
-  #set ($completed = 0)
-#end
 
 #if ($createdAfter)
   #set ($dateFormat = $services.taskmanager.configuration.storageDateFormat)
@@ -273,14 +268,18 @@
   #set ($endDate = $startDate.plusYears(1000).millis)
 #end
 
+#if ($status != "done")
+  #set ($status = "inProgress")
+#end
 
+$spaceFilter
 #set ($extraParams = {
   'space': $spaceFilter,
-  'completed': $completed,
-  'creator/join_mode': 'or',
-  'assignees': $assignees.split('\s*,\s*'),
-  'assignees/join_mode': 'or',
-  'creator': $creator.split('\s*,\s*')
+  'status': $status,
+  'assignee': $assignees.split('\s*,\s*'),
+  'assignee/join_mode': 'or',
+  'reporter': $creator.split('\s*,\s*'),
+  'reporter/join_mode': 'or'
 })
 
 #if ($startDate)
@@ -288,26 +287,26 @@
 #end
 
 #if ("$!tags" != '')
-  #set ($discard = $extraParams.put('tag', $tags.split('\s*,\s*')))
+  #set ($discard = $extraParams.put('tasktag', $tags.split('\s*,\s*')))
 #end
 #set ($columnsProperties = {
-  'description': {'type': 'text', 'size': 10, 'html': true},
-  'assignees': {'type': 'text', 'size': 10, 'html': true},
-  'deadline': {'type': 'date', 'size': 10},
+  'render': {'type': 'text', 'size': 10, 'html': true},
+  'assignee': {'type': 'text', 'size': 10, 'html': true},
+  'duedate': {'type': 'date', 'size': 10},
   'completeDate': {'type': 'date', 'size': 10},
   'owner' : {'type': 'text', 'size': 10, 'html': true, 'link': 'view'},
   'createDate': {'type': 'hidden'},
-  'completed': {'type': 'hidden'},
-  'creator': {'type': 'hidden'}
+  'status': {'type': 'hidden'},
+  'reporter': {'type': 'hidden'}
 })
 #set ($options = {
+  'resultPage': 'TaskManager.Code.TaskReportResultPage',
   'className': 'TaskManager.Code.TaskClass',
   'translationPrefix': 'taskmanager.livetable.',
-  'tagCloud': true,
   'selectedColumn': $!sortBy,
-  'selectedTags': $tags.split('\s*,\s*'),
   'rowCount': $rowCount,
-  'extraParams': $escapetool.url($extraParams)
+  'extraParams': $escapetool.url($extraParams),
+  'queryFilters': 'unique'
 })
 #livetable($tableId $columns $columnsProperties $options)
 #set ($discard = $xwiki.ssx.use('TaskManager.Code.SkinExtensions'))
@@ -648,7 +647,7 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>creators</name>
+      <name>reporters</name>
     </property>
     <property>
       <type>com.xwiki.taskmanager.UserReferenceList</type>
@@ -795,7 +794,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>true</defaultValue>
+      <defaultValue>done</defaultValue>
     </property>
     <property>
       <description/>
@@ -804,10 +803,10 @@
       <mandatory>0</mandatory>
     </property>
     <property>
-      <name>completed</name>
+      <name>status</name>
     </property>
     <property>
-      <type>java.lang.Boolean</type>
+      <type>java.lang.String</type>
     </property>
   </object>
   <object>
@@ -951,7 +950,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>description,deadline,assignees,owner</defaultValue>
+      <defaultValue>render,duedate,assignee,owner</defaultValue>
     </property>
     <property>
       <description/>
@@ -1029,7 +1028,7 @@
       </type>
     </class>
     <property>
-      <defaultValue>deadline</defaultValue>
+      <defaultValue>duedate</defaultValue>
     </property>
     <property>
       <description/>

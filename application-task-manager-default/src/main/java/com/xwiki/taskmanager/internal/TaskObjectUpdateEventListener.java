@@ -19,20 +19,25 @@
  */
 package com.xwiki.taskmanager.internal;
 
-import java.util.Collections;
+import java.util.Arrays;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.xwiki.bridge.event.DocumentUpdatedEvent;
+import org.xwiki.bridge.event.DocumentCreatingEvent;
+import org.xwiki.bridge.event.DocumentDeletingEvent;
+import org.xwiki.bridge.event.DocumentUpdatingEvent;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.EntityType;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.observation.event.Event;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xwiki.taskmanager.TaskCounter;
 import com.xwiki.taskmanager.model.Task;
 
 /**
@@ -46,39 +51,58 @@ import com.xwiki.taskmanager.model.Task;
 @Singleton
 public class TaskObjectUpdateEventListener extends AbstractTaskEventListener
 {
+    @Inject
+    private TaskCounter taskCounter;
+
     /**
      * Constructor.
      */
     public TaskObjectUpdateEventListener()
     {
-        super(TaskObjectUpdateEventListener.class.getName(), Collections.singletonList(new DocumentUpdatedEvent()));
+        super(TaskObjectUpdateEventListener.class.getName(), Arrays.asList(new DocumentUpdatingEvent(),
+            new DocumentCreatingEvent(), new DocumentDeletingEvent()));
     }
 
     @Override
-    protected void processEvent(XWikiDocument document, XWikiContext context)
+    protected void processEvent(XWikiDocument document, XWikiContext context, Event event)
     {
-        if (context.get(TASK_UPDATE_FLAG) != null) {
-            return;
-        }
-
-        BaseObject taskObj = document.getXObject(TASK_OBJECT_CLASS_REFERENCE);
+        BaseObject taskObj = document.getXObject(TASK_CLASS_REFERENCE);
 
         if (taskObj == null) {
             return;
         }
 
-        String taskOwner = taskObj.getStringValue(Task.OWNER);
+        setTaskNumber(context, taskObj);
+        taskObj.set(Task.RENDER,
+            taskXDOMProcessor.renderTaskFromObject(taskObj.getDocumentReference(), document.getSyntax()), context);
 
-        if (taskOwner == null || taskOwner.isEmpty()) {
+        if (context.get(TASK_UPDATE_FLAG) != null || taskObj.getStringValue(Task.OWNER).isEmpty()) {
             return;
         }
 
-        DocumentReference taskOwnerRef = new DocumentReference(resolver.resolve(taskOwner, EntityType.DOCUMENT));
+
+        String taskOwner = taskObj.getStringValue(Task.OWNER);
+
+        DocumentReference taskOwnerRef = resolver.resolve(taskOwner, EntityType.DOCUMENT);
 
         try {
-            taskProcessor.updateTask(taskOwnerRef, taskObj, context);
+            context.put(TASK_UPDATE_FLAG, true);
+            if (!taskOwner.isEmpty()) {
+                taskXDOMProcessor.updateTaskMacroCall(taskOwnerRef, taskObj, context);
+            }
+            context.put(TASK_UPDATE_FLAG, null);
         } catch (XWikiException e) {
             logger.error("Failed to process the owner document of the task [{}].", taskOwnerRef);
+        }
+    }
+
+    private void setTaskNumber(XWikiContext context, BaseObject taskObj)
+    {
+        if (taskObj.getIntValue(Task.NUMBER, -1) == -1) {
+            int taskNumber = taskCounter.getNextNumber();
+            if (taskNumber != -1) {
+                taskObj.set(Task.NUMBER, taskNumber, context);
+            }
         }
     }
 }

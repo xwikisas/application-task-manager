@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,27 +16,27 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
--->
+ */
+package com.xwiki.taskmanager;
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>application-task-manager</artifactId>
-    <groupId>com.xwiki.task-manager</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
+import org.xwiki.component.annotation.Role;
+import org.xwiki.stability.Unstable;
 
-  <artifactId>application-task-manager-api</artifactId>
+import com.xwiki.taskmanager.model.Task;
 
-  <dependencies>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-rest-server</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>jsr311-api</artifactId>
-    </dependency>
-  </dependencies>
-</project>
+/**
+ * This class provides access to different methods that will ease the handling of tasks.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
+@Role
+@Unstable
+public interface TaskManager
+{
+    /**
+     * @param reference the reference of a page that contains a Task Object.
+     * @return the Task Model of the object inside the page.
+     */
+    Task getTaskByReference(String reference);
+}

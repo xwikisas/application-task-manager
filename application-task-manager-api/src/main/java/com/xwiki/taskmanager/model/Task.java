@@ -19,9 +19,7 @@
  */
 package com.xwiki.taskmanager.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
@@ -38,7 +36,17 @@ public class Task
     /**
      * The name of the model.
      */
-    public static final String NAME = "task";
+    public static final String MACRO_NAME = "task";
+
+    /**
+     * The name of the NAME field.
+     */
+    public static final String NAME = "name";
+
+    /**
+     * The name of the NUMBER field.
+     */
+    public static final String NUMBER = "number";
 
     /**
      * The name of the OWNER field.
@@ -47,22 +55,27 @@ public class Task
     /**
      * The name of the ID field.
      */
-    public static final String ID = "id";
+    public static final String REFERENCE = "reference";
 
     /**
      * The name of the STATUS field.
      */
-    public static final String STATUS = "completed";
+    public static final String STATUS = "status";
 
     /**
-     * The name of the CREATOR field.
+     * The value of the STATUS field denoting that the task has been completed.
      */
-    public static final String CREATOR = "creator";
+    public static final String STATUS_DONE = "done";
 
     /**
-     * The name of the ASSIGNEES field.
+     * The name of the REPORTER field.
      */
-    public static final String ASSIGNEES = "assignees";
+    public static final String REPORTER = "reporter";
+
+    /**
+     * The name of the ASSIGNEE field.
+     */
+    public static final String ASSIGNEE = "assignee";
 
     /**
      * The name of the CREATE_DATE field.
@@ -70,9 +83,9 @@ public class Task
     public static final String CREATE_DATE = "createDate";
 
     /**
-     * The name of the DEADLINE field.
+     * The name of the DUE_DATE field.
      */
-    public static final String DEADLINE = "deadline";
+    public static final String DUE_DATE = "duedate";
 
     /**
      * The name of the COMPLETE_DATE field.
@@ -80,27 +93,31 @@ public class Task
     public static final String COMPLETE_DATE = "completeDate";
 
     /**
-     * The name of the DESCRIPTION field.
+     * The name of the RENDER field.
      */
-    public static final String DESCRIPTION = "description";
+    public static final String RENDER = "render";
+
+    private String name;
+
+    private int number;
 
     private DocumentReference owner;
 
-    private String id;
+    private DocumentReference reference;
 
-    private boolean completed;
+    private String status;
 
-    private DocumentReference creator;
+    private DocumentReference reporter;
 
-    private List<DocumentReference> assignees;
+    private DocumentReference assignee;
 
     private Date createDate;
 
-    private Date deadline;
+    private Date duedate;
 
     private Date completeDate;
 
-    private String description;
+    private String render;
 
     /**
      * @return the reference of the document where this task resides.
@@ -121,68 +138,65 @@ public class Task
     /**
      * @return a unique identifier for the task within the document.
      */
-    public String getId()
+    public DocumentReference getReference()
     {
-        return id;
+        return reference;
     }
 
     /**
-     * @param id the Id of the task. Grouping the tasks by the document reference, their Ids have to be unique.
+     * @param reference the Id of the task. Grouping the tasks by the document reference, their Ids have to be unique.
      */
-    public void setId(String id)
+    public void setReference(DocumentReference reference)
     {
-        this.id = id;
+        this.reference = reference;
     }
 
     /**
      * @return whether the task has been completed or not.
      */
-    public boolean isCompleted()
+    public String getStatus()
     {
-        return completed;
+        return status;
     }
 
     /**
-     * @param completed the current state of the task - true: the task is completed; false: the task is not done.
+     * @param status the current state of the task - true: the task is completed; false: the task is not done.
      */
-    public void setCompleted(boolean completed)
+    public void setStatus(String status)
     {
-        this.completed = completed;
+        this.status = status;
     }
 
     /**
      * @return the reference to the user that created this task.
      */
-    public DocumentReference getCreator()
+    public DocumentReference getReporter()
     {
-        return creator;
+        return reporter;
     }
 
     /**
-     * @param creator the reference to the user that created this task.
+     * @param reporter the reference to the user that created this task.
      */
-    public void setCreator(DocumentReference creator)
+    public void setReporter(DocumentReference reporter)
     {
-        this.creator = creator;
+        this.reporter = reporter;
     }
 
     /**
      * @return a list of references to the users that are assigned to this task.
      */
-    public List<DocumentReference> getAssignees()
+    public DocumentReference getAssignee()
     {
-        if (assignees == null) {
-            return new ArrayList<>();
-        }
-        return assignees;
+        return assignee;
     }
 
     /**
-     * @param assignees a list of references to the users that are assigned to this task.
+     * @param assignee a list of references to the users that are assigned to this task.
      */
-    public void setAssignees(List<DocumentReference> assignees)
+    public void setAssignee(DocumentReference assignee)
     {
-        this.assignees = assignees;
+        this.assignee = assignee;
     }
 
     /**
@@ -204,17 +218,17 @@ public class Task
     /**
      * @return the deadline of the task.
      */
-    public Date getDeadline()
+    public Date getDuedate()
     {
-        return deadline;
+        return duedate;
     }
 
     /**
-     * @param deadline the deadline of the task.
+     * @param duedate the deadline of the task.
      */
-    public void setDeadline(Date deadline)
+    public void setDuedate(Date duedate)
     {
-        this.deadline = deadline;
+        this.duedate = duedate;
     }
 
     /**
@@ -234,18 +248,49 @@ public class Task
     }
 
     /**
-     * @return the description of this task. It can be saved in a particular syntax.
+     * @return the way the task is rendered in the current syntax of the wiki.
      */
-    public String getDescription()
+    public String getRender()
     {
-        return description;
+        return render;
     }
 
     /**
-     * @param description the description of this task.
+     * @param render the rendition of this task.
      */
-    public void setDescription(String description)
+    public void setRender(String render)
     {
-        this.description = description;
+        this.render = render;
+    }
+
+    /**
+     * @return the name/title given to this task.
+     */
+    public String getName()
+    {
+        return name;
+    }
+    /**
+     * @param name the name/title given to this task.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    /**
+     * @return the unique number identifying this Task on the current wiki.
+     */
+    public int getNumber()
+    {
+        return number;
+    }
+
+    /**
+     * @param number the number that uniquely identifies the task.
+     */
+    public void setNumber(int number)
+    {
+        this.number = number;
     }
 }

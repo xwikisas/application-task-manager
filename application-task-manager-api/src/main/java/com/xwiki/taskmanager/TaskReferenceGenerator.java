@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!--
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,27 +16,29 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
--->
+ */
+package com.xwiki.taskmanager;
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>application-task-manager</artifactId>
-    <groupId>com.xwiki.task-manager</groupId>
-    <version>1.0-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
+import org.xwiki.component.annotation.Role;
+import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.stability.Unstable;
 
-  <artifactId>application-task-manager-api</artifactId>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-rest-server</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.ws.rs</groupId>
-      <artifactId>jsr311-api</artifactId>
-    </dependency>
-  </dependencies>
-</project>
+/**
+ * Counter that handles the id generation for the tasks.
+ *
+ * @version $Id$
+ * @since 1.0
+ */
+@Role
+@Unstable
+public interface TaskReferenceGenerator
+{
+    /**
+     * Generate a reference for a task, relative to its parent.
+     *
+     * @param parent the parent of the task.
+     * @return a reference to the task. It can be either a child of the parent, a sibling or it can be a child to the
+     * default TaskManager home, depending on the rights of the current user.
+     */
+    DocumentReference generate(DocumentReference parent);
+}

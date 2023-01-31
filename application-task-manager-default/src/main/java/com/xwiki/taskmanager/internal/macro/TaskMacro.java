@@ -20,6 +20,8 @@
 
 package com.xwiki.taskmanager.internal.macro;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,14 +41,18 @@ import org.xwiki.rendering.block.match.MetadataBlockMatcher;
 import org.xwiki.rendering.listener.Format;
 import org.xwiki.rendering.listener.MetaData;
 import org.xwiki.rendering.macro.AbstractMacro;
-import org.xwiki.rendering.macro.MacroContentParser;
 import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.macro.descriptor.DefaultContentDescriptor;
 import org.xwiki.rendering.syntax.Syntax;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
 import org.xwiki.skinx.SkinExtension;
 
+import com.xwiki.taskmanager.TaskException;
+import com.xwiki.taskmanager.TaskManager;
+import com.xwiki.taskmanager.TaskManagerConfiguration;
+import com.xwiki.taskmanager.internal.TaskBlockProcessor;
 import com.xwiki.taskmanager.macro.TaskMacroParameters;
+import com.xwiki.taskmanager.model.Task;
 
 /**
  * Task macro that will enable the users to assign tasks to each other.
@@ -62,7 +68,7 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
     private static final String HTML_CLASS = "class";
 
     @Inject
-    private MacroContentParser contentParser;
+    private TaskBlockProcessor taskBlockProcessor;
 
     @Inject
     @Named("ssx")
@@ -71,6 +77,12 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
     @Inject
     @Named("jsx")
     private SkinExtension jsx;
+
+    @Inject
+    private TaskManager taskManager;
+
+    @Inject
+    private TaskManagerConfiguration conf;
 
     /**
      * Default constructor.
@@ -94,19 +106,33 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
         this.ssx.use(DateMacro.SKIN_RESOURCES_DOCUMENT_REFERENCE);
         this.jsx.use(DateMacro.SKIN_RESOURCES_DOCUMENT_REFERENCE);
 
-        Block ret = null;
+        List<Block> contentBlocks = new ArrayList<>();
 
-        if (content == null) {
-            return Collections.emptyList();
+        Task task = taskManager.getTaskByReference(parameters.getReference());
+
+        if (content != null && !content.trim().isEmpty()) {
+            try {
+                List<Block> macroContent =
+                    taskBlockProcessor.getTaskContentXDOM(context.getCurrentMacroBlock(), context.getSyntax())
+                        .getChildren();
+
+                contentBlocks =
+                    Collections.singletonList(new MetaDataBlock(macroContent, this.getNonGeneratedContentMetaData()));
+            } catch (TaskException e) {
+                throw new MacroExecutionException("Failed to get the content of the task.", e);
+            }
+        } else if (parameters.getReference() != null) {
+            contentBlocks = getContentFromTaskPage(task, parameters.getReference());
         }
 
+        return createTaskStructure(parameters, context, contentBlocks, task);
+    }
+
+    private List<Block> createTaskStructure(TaskMacroParameters parameters, MacroTransformationContext context,
+        List<Block> contentBlocks, Task task)
+    {
+        Block ret;
         Map<String, String> blockParameters = new HashMap<>();
-
-        List<Block> macroContent = contentParser.parse(content, context, false, context.isInline())
-            .getChildren();
-
-        List<Block> contentBlocks =
-            Collections.singletonList(new MetaDataBlock(macroContent, this.getNonGeneratedContentMetaData()));
 
         ret = context.isInline() ? new FormatBlock() : new GroupBlock();
         MetaDataBlock sourceBlock =
@@ -119,12 +145,46 @@ public class TaskMacro extends AbstractMacro<TaskMacroParameters>
         blockParameters.put(HTML_CLASS, "task-macro");
         blockParameters.put("data-source", sourceDocument);
         ret.setParameters(blockParameters);
+        String checked = "";
+        if ((parameters.getStatus() != null && parameters.getStatus().equals(Task.STATUS_DONE)) || (task != null
+            && task.getStatus().equals(Task.STATUS_DONE)))
+        {
+            checked = "checked";
+        }
         String htmlCheckbox = String.format("<input type=\"checkbox\" data-taskId=\"%s\" %s class=\"task-status\">",
-            parameters.getId(), parameters.isCompleted() ? "checked" : "");
+            parameters.getReference(),
+            checked);
         Block checkBoxBlock = new RawBlock(htmlCheckbox, Syntax.HTML_5_0);
 
         ret.addChild(new FormatBlock(Collections.singletonList(checkBoxBlock), Format.NONE));
+        if (task != null && task.getNumber() > 0) {
+            ret.addChild(taskBlockProcessor.createTaskLinkBlock(parameters.getReference(), task.getNumber()));
+        }
         ret.addChild(new GroupBlock(contentBlocks, Collections.singletonMap(HTML_CLASS, "task-content")));
         return Collections.singletonList(ret);
+    }
+
+    private List<Block> getContentFromTaskPage(Task task, String reference) throws MacroExecutionException
+    {
+        List<Block> contentBlocks;
+
+        if (task == null) {
+            throw new MacroExecutionException(String.format("The page [%s] does not have a Task Object.", reference));
+        }
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(conf.getStorageDateFormat());
+            List<Block> macroContent = taskBlockProcessor.generateTaskContentBlocks(
+                task.getAssignee().toString(),
+                task.getDuedate(),
+                task.getName(),
+                format
+            );
+
+            contentBlocks =
+                Collections.singletonList(new MetaDataBlock(macroContent, this.getNonGeneratedContentMetaData()));
+        } catch (TaskException e) {
+            throw new MacroExecutionException("Failed to generate the content for the task.", e);
+        }
+        return contentBlocks;
     }
 }

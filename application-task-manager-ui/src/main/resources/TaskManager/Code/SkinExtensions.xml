@@ -134,7 +134,7 @@
       let taskDocument = XWiki.Model.resolve(task.data('source'), XWiki.EntityType.DOCUMENT) || XWiki.currentDocument.documentReference;
       let baseURL = new XWiki.Document(taskDocument).getRestURL();
 
-      let restURL = baseURL + '/tasks/' + taskId + '?completed=' + (checkbox.is(':checked'));
+      let restURL = baseURL + '/tasks/' + taskId + '?status=' + (checkbox.is(':checked') ? "done" : "inProgress");
 
       checkbox.prop("disabled", true);
       let not = new XWiki.widgets.Notification("$services.localization.render('taskmanager.notification.statusChange.inprogress')", "inprogress");
@@ -283,8 +283,13 @@
   margin: 0;
 }
 
+.task-macro > span a {
+  margin-right: 0.5em;
+}
+
 .task-macro {
   display: flex;
+  align-items: center;
 }
 
 .task-status {

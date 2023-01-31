@@ -37,123 +37,42 @@
   <syntaxId>xwiki/2.1</syntaxId>
   <hidden>true</hidden>
   <content>{{include reference="XWiki.LiveTableResultsMacros" /}}
-{{velocity output="false"}}
-## Complete the SQL query so that it filters the UserReference properties.
-#macro(addUserFilter $sqlName $fieldName $isList)
-  #set ($fromSql = "${fromSql}, LargeStringProperty ${sqlName}")
-  #set ($userSql = '')
-  #foreach($user in $request.getParameterValues($fieldName))
-    #if ($foreach.count &gt; 1)
-      #set ($userSql = "${userSql} OR ")
-    #end
-    #if ($isList)
-      #set ($userSql = "$!{userSql}${sqlName}.id.value like CONCAT('%', :${sqlName}${foreach.count}, '%')")
-    #else
-      #set ($userSql = "$!{userSql}${sqlName}.id.value like :${sqlName}${foreach.count}")
-    #end
-    #set ($discard = $whereParams.put("${sqlName}${foreach.count}", $user))
-  #end
-  #set ($whereSql = "$!{whereSql} AND ${sqlName}.id.id=obj.id AND ${sqlName}.id.name='${sqlName}' AND ($userSql)")
-#end
-#macro(addUserDisplay $row $key $user)
-  #set ($avatar = "#displayUser($user)")
-  #set ($avatar = $avatar.trim())
-  #set($discard = $row.put($key, $avatar))
-#end
-{{/velocity}}
+
 {{velocity wiki="false"}}
-#if($xcontext.action == 'get' &amp;&amp; "$!{request.outputSyntax}" == 'plain')
-  $response.setContentType('application/json')
-  #set ($fromSql = ', StringProperty taskId')
-  #set ($whereParams = {})
-  ## Add Space filter.
-  #if("$!request.space" != '')
-    #foreach($space in $request.getParameterValues('space'))
-      #if ($foreach.count &gt; 1)
-        #set ($spaceSql = "${spaceSql} OR ")
-      #end
-      #set ($paramVal = $services.query.parameter().literal("$space.").anyChars())
-      #set ($spaceSql = "$!{spaceSql}doc.fullName like :docspace${foreach.count}")
-      #set ($discard = $whereParams.put("docspace${foreach.count}", $paramVal))
-    #end
-    #set ($whereSql = "AND (${spaceSql})")
+#set ($extraFrom = '')
+#set ($extraWhere = '')
+#set ($params = {})
+
+#set ($spaceWhere = '')
+
+#if ("$!request.tasktag" != '')
+  #set($extraFrom = "${extraFrom} , BaseObject as tobject, DBStringListProperty as tagprop, StringProperty as taskowner join tagprop.list tag")
+  #set($extraWhere = "${extraWhere} and obj.id=taskowner.id.id and taskowner.id.name='owner'")
+  #set($extraWhere = "${extraWhere} and tobject.className='XWiki.TagClass' and (tobject.name=doc.fullName or taskowner.value like CONCAT('%', tobject.name)) and tobject.id=tagprop.id.id and tagprop.id.name='tags' and lower(tag) in :taskTagList")
+  #set ($list = [])
+  #foreach ($tag in $request.getParameterValues('tasktag'))
+    #set ($discard = $list.add($tag))
   #end
-  ## Add CreateDate filter.
-  #if("$!request.createdAfter" != '')
-    #set ($fromSql = "${fromSql}, DateProperty createDate")
-    #set ($whereSql = "$!{whereSql} AND createDate.id.id=obj.id AND createDate.id.name='createDate' AND createDate.id.value &gt;= :createdAfter")
-    #set ($discard = $whereParams.put('createdAfter', $datetool.toDate($services.taskmanager.configuration.storageDateFormat, $request.createdAfter)))
-  #end
-  ## Add assignee filter.
-  #if("$!request.taskAssignee" != '')
-    #addUserFilter('assignees' 'taskAssignee' 1)
-  #end
-  #gridresultwithfilter_buildQuery("$!request.classname" $request.collist.split(',') $fromSql "AND taskId.id.id=obj.id AND taskId.id.name='id' $!{whereSql}" $whereParams)
-  #set($map = {})
-  #gridresult_buildTagCloudJSON($map)
-  #set($discard = $map.put('reqNo', $numbertool.toNumber($request.reqNo).intValue()))
-  #set($offset = $numbertool.toNumber($request.get('offset')).intValue())
-  ## Offset starts from 0 in velocity and 1 in javascript
-  #set($offset = $offset - 1)
-  #if(!$offset || $offset &lt; 0)
-    #set($offset = 0)
-  #end
-  #set($limit = $numbertool.toNumber($request.get('limit')).intValue())
-  #if(!$limit)
-    #set ($limit = 15)
-  #end
-  ## Services call =========
-  #set ($items = $services.taskmanager.searchTasks($sql, $sqlParams, $offset, $limit))
-  #set($discard = $map.put('totalrows', $items.totalHits))
-  #if ($limit &gt; 0)
-    #set($discard = $map.put('returnedrows', $mathtool.min($items.size, $limit)))
-  #else
-    ## When the limit is 0, it's equivalent to no limit at all and the actual number of returned results can be used.
-    #set($discard = $map.put('returnedrows', $items.size))
-  #end
-  #set($discard = $map.put('offset', $mathtool.add($offset, 1)))
-##
-##
-  #set($rows = [])
-  #set($lastDoc = '')
-  #set($lastObjList = '')
-  #foreach($item in $items)
-    #set($rowDocRef = $item.documentReference)
-    #set($objId = $item.id)
-    #set($rowDoc = $xwiki.getDocument($rowDocRef))
-    #set($row = {})
-    #if ($rowDocRef)
-      #set ($row = {
-        'doc_title': $rowDoc.translatedDocument.plainTitle,
-        'doc_viewable': true,
-        'doc_fullName': $services.model.serialize($rowDocRef, 'local'),
-        'doc_space': $services.model.serialize($rowDocRef.parent, 'local'),
-        'doc_url': $xwiki.getURL($rowDocRef),
-        'doc_space_url': $xwiki.getURL($rowDocRef.parent),
-        'doc_wiki': $rowDocRef.wikiReference.name,
-        'doc_wiki_url': $xwiki.getURL($rowDocRef.wikiReference),
-        'doc_hasadmin': $xwiki.hasAdminRights(),
-        'doc_hasedit': $services.security.authorization.hasAccess('edit', $rowDocRef),
-        'doc_hasdelete': $services.security.authorization.hasAccess('delete', $rowDocRef),
-        'doc_edit_url': $xwiki.getURL($rowDocRef, 'edit'),
-        'doc_copy_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=copy'),
-        'doc_delete_url': $xwiki.getURL($rowDocRef, 'delete'),
-        'doc_rename_url': $xwiki.getURL($rowDocRef, 'view', 'xpage=rename&amp;step=1')
-      })
-      #set($discard = $row.put('description', $rowDoc.getRenderedContentRestricted($item.description, $rowDoc.syntax)))
-      #set($discard = $row.put('createDate', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.createDate)))
-      #set($discard = $row.put('deadline', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.deadline)))
-      #set($discard = $row.put('completeDate', $datetool.format($services.taskmanager.configuration.displayDateFormat, $item.completeDate)))
-      #set($discard = $row.put('completed', $services.localization.render("taskmanager.livetable.completed.${item.completed}")))
-      #addUserDisplay($row 'creator' $item.creator)
-      #addUserDisplay($row 'assignees' $item.assignees)
-    #else
-      #set($discard = $row.put('description', $services.localization.render('taskmanager.livetable.noRights')))
-    #end
-    #set($discard = $rows.add($row))
-  #end
-  #set($discard = $map.put('rows', $rows))
-  $jsontool.serialize($map)
+  #set ($discard = $params.put("taskTagList", $list))
 #end
+
+#if ("$!request.space" != '')
+  #foreach($space in $request.getParameterValues('space'))
+    #if ($foreach.count > 1)
+      #set ($spaceWhere = "${spaceWhere} OR ")
+    #end
+    #set ($paramVal = $services.query.parameter().literal("${space}.").anyChars())
+    #set ($spaceWhere = "${spaceWhere}doc.fullName like '${space}.%'")
+    ##set ($discard = $params.put("docspace${foreach.count}", $paramVal))
+  #end
+  #set ($extraWhere = "${extraWhere} AND (${spaceWhere})")
+#end
+
+##gridresultwithfilter_buildQuery("$!request.classname" $request.collist.split(',') "${extraFrom}" "${extraWhere}" $params)
+##$sql
+##$sqlParams
+##$request.getParameterValues('tasktags')
+
+#gridresultwithfilter("$!request.classname" $request.collist.split(',') "${extraFrom}" "${extraWhere}" $params)
 {{/velocity}}</content>
 </xwikidoc>

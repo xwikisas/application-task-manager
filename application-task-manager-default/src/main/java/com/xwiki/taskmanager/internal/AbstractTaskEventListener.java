@@ -25,7 +25,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
-import org.xwiki.model.reference.EntityReferenceResolver;
+import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.observation.AbstractEventListener;
 import org.xwiki.observation.event.Event;
@@ -49,17 +49,17 @@ public abstract class AbstractTaskEventListener extends AbstractEventListener
     /**
      * The reference to the TaskClass page.
      */
-    public static final LocalDocumentReference TASK_OBJECT_CLASS_REFERENCE =
+    public static final LocalDocumentReference TASK_CLASS_REFERENCE =
         new LocalDocumentReference(Arrays.asList(TASK_MANAGER_SPACE, "Code"), "TaskClass");
 
 
     protected static final String TASK_UPDATE_FLAG = "taskUpdating";
 
     @Inject
-    protected EntityReferenceResolver<String> resolver;
+    protected DocumentReferenceResolver<String> resolver;
 
     @Inject
-    protected TaskProcessor taskProcessor;
+    protected TaskXDOMProcessor taskXDOMProcessor;
 
     @Inject
     protected Logger logger;
@@ -79,8 +79,8 @@ public abstract class AbstractTaskEventListener extends AbstractEventListener
         XWikiContext context = (XWikiContext) data;
         XWikiDocument document = (XWikiDocument) source;
 
-        processEvent(document, context);
+        processEvent(document, context, event);
     }
 
-    protected abstract void processEvent(XWikiDocument document, XWikiContext context);
+    protected abstract void processEvent(XWikiDocument document, XWikiContext context, Event event);
 }

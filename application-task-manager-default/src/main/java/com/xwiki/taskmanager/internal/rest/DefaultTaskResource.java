@@ -61,8 +61,9 @@ import com.xwiki.taskmanager.rest.TaskResource;
 @Singleton
 public class DefaultTaskResource extends ModifiablePageResource implements TaskResource
 {
-    private static final LocalDocumentReference TASK_OBJECT_CLASS_REFERENCE =
+    private static final LocalDocumentReference TASK_CLASS_REFERENCE =
         new LocalDocumentReference(Arrays.asList("TaskManager", "Code"), "TaskClass");
+
     @Inject
     private ContextualAuthorizationManager contextualAuthorizationManager;
 
@@ -70,7 +71,7 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
     private TaskManagerConfiguration configuration;
 
     @Override
-    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String taskId, Boolean completed)
+    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String taskId, String status)
         throws XWikiRestException
     {
         DocumentReference docRef = new DocumentReference(pageName, getSpaceReference(spaces, wikiName));
@@ -83,25 +84,27 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
             XWikiDocument document = getXWikiContext().getWiki().getDocument(docRef, getXWikiContext()).clone();
             XDOM documentContent = document.getXDOM();
             List<MacroBlock> macros =
-                documentContent.getBlocks(new MacroBlockMatcher(Task.NAME), Block.Axes.DESCENDANT);
+                documentContent.getBlocks(new MacroBlockMatcher(Task.MACRO_NAME), Block.Axes.DESCENDANT);
 
             Optional<MacroBlock> selectedMacro = macros.stream()
-                .filter((macroBlock) -> macroBlock.getParameters().getOrDefault(Task.ID, "").equals(taskId))
+                .filter((macroBlock) -> macroBlock.getParameters().getOrDefault(Task.REFERENCE, "").equals(taskId))
                 .findFirst();
             String completeDate = new SimpleDateFormat(configuration.getStorageDateFormat()).format(new Date());
 
             if (selectedMacro.isPresent()) {
-                selectedMacro.get().setParameter(Task.STATUS, completed.toString());
-                selectedMacro.get().setParameter(Task.COMPLETE_DATE, completed ? completeDate : "");
+                selectedMacro.get().setParameter(Task.STATUS, status);
+                selectedMacro.get()
+                    .setParameter(Task.COMPLETE_DATE, status.equals(Task.STATUS_DONE) ? completeDate : "");
 
                 document.setContent(documentContent);
             } else {
-                BaseObject taskObject = document.getXObject(TASK_OBJECT_CLASS_REFERENCE);
-                if (taskObject == null || !taskId.equals(taskObject.getStringValue(Task.ID))) {
+                BaseObject taskObject = document.getXObject(TASK_CLASS_REFERENCE);
+                if (taskObject == null || !taskId.equals(taskObject.getDocumentReference().toString())) {
                     return Response.status(Response.Status.NOT_FOUND).build();
                 }
-                taskObject.set(Task.STATUS, completed.toString(), getXWikiContext());
-                taskObject.set(Task.COMPLETE_DATE, completed ? completeDate : "", getXWikiContext());
+                taskObject.set(Task.STATUS, status, getXWikiContext());
+                taskObject.set(Task.COMPLETE_DATE, status.equals(Task.STATUS_DONE) ? completeDate : "",
+                    getXWikiContext());
             }
             getXWikiContext().getWiki().saveDocument(document, "Changed task status!", getXWikiContext());
 

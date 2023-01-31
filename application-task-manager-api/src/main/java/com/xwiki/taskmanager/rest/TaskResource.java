@@ -48,7 +48,7 @@ public interface TaskResource
      * @param spaces the spaces of the page
      * @param pageName the name of the page
      * @param taskId the id of the macro
-     * @param completed whether the task has been completed or not
+     * @param status whether the task has been completed or not
      * @return 200 is the status has been changed successfully of 404 if the task was not found
      * @throws XWikiRestException when failing in retrieving the document or saving it
      */
@@ -58,6 +58,6 @@ public interface TaskResource
         @PathParam("spaceName") @Encoded String spaces,
         @PathParam("pageName") String pageName,
         @PathParam("taskId") String taskId,
-        @QueryParam("completed") @DefaultValue("true") Boolean completed
+        @QueryParam("status") @DefaultValue("done") String status
     ) throws XWikiRestException;
 }

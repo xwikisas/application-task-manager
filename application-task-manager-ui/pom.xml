@@ -43,7 +43,7 @@
   <dependencies>
     <dependency>
       <groupId>com.xwiki.task-manager</groupId>
-      <artifactId>application-task-manager-api</artifactId>
+      <artifactId>application-task-manager-default</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

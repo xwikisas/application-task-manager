@@ -27,8 +27,6 @@ import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.component.phase.Initializable;
-import org.xwiki.component.phase.InitializationException;
 import org.xwiki.query.Query;
 import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
@@ -43,35 +41,30 @@ import com.xwiki.taskmanager.TaskCounter;
  */
 @Component
 @Singleton
-public class DefaultTaskCounter implements TaskCounter, Initializable
+public class DefaultTaskCounter implements TaskCounter
 {
-    private int counter;
     @Inject
     private Provider<QueryManager> queryManagerProvider;
 
     @Inject
     private Logger logger;
+
     @Override
-    public void initialize() throws InitializationException
+    public int getNextNumber()
     {
         String statement =
-                "SELECT taskId.value "
-                + "FROM XWikiDocument doc, BaseObject as obj, StringProperty as taskId "
-                + "WHERE doc.fullName = obj.name AND obj.className = 'TaskManager.Code.TaskClass' "
-                + "AND obj.id=taskId.id.id AND taskId.id.name='id' "
-                + "ORDER BY taskId.value DESC";
+            "select max(taskObject.number) "
+                + "from Document doc, doc.object(TaskManager.Code.TaskClass) as taskObject";
         try {
-            List<String> result = queryManagerProvider.get().createQuery(statement, Query.HQL).setLimit(1).execute();
-            if (result.size() > 0) {
-                counter = Integer.parseInt(result.get(0)) + 1;
+            List<Integer> result = queryManagerProvider.get().createQuery(statement, Query.XWQL).execute();
+            if (result.size() > 0 && result.get(0) != null) {
+                return result.get(0) + 1;
+            } else {
+                return 1;
             }
-        } catch (QueryException | NumberFormatException e) {
-            logger.warn("Query {} failed to execute. Setting counter to 0.", statement);
+        } catch (QueryException e) {
+            logger.warn("Failed to retrieve a valid [number] for a task.");
+            return -1;
         }
-    }
-    @Override
-    public synchronized int getAndIncrement()
-    {
-        return counter++;
     }
 }

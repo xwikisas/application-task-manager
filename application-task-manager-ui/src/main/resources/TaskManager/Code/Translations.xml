@@ -42,7 +42,7 @@ taskmanager.notification.statusChange.noId=Failed to change the status because t
 taskmanager.notification.statusChange.inprogress=Changing status..
 
 taskmanager.livetable.description=Task
-taskmanager.livetable.deadline=Deadline
+taskmanager.livetable.duedate=Deadline
 taskmanager.livetable.assignees=Assignee(s)
 taskmanager.livetable.owner=Location
 taskmanager.livetable.completeDate=Completed on
@@ -78,7 +78,7 @@ rendering.macro.tasks-report-macro.parameter.completed.description=Display all t
 rendering.macro.tasks-report-macro.parameter.limit.name=Live table limit
 rendering.macro.tasks-report-macro.parameter.limit.description=Specifies how many tasks should be displayed on a single page.
 rendering.macro.tasks-report-macro.parameter.columns.name=Live table display columns
-rendering.macro.tasks-report-macro.parameter.columns.description=A list task properties that you want the table to display. The possible values are: description, deadline, assignees, doc.title (task location) and completeDate.
+rendering.macro.tasks-report-macro.parameter.columns.description=A list task properties that you want the table to display. The possible values are: description, deadline, assignee, doc.title (task location) and completeDate.
 rendering.macro.tasks-report-macro.parameter.sortBy.name=Sort By
 rendering.macro.tasks-report-macro.parameter.sortBy.description=The column that will be used to order the table.
 rendering.macro.tasks-report-macro.parameter.id.name=Table ID
