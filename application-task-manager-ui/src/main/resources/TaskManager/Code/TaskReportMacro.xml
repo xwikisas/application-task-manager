@@ -259,7 +259,6 @@
 #end
 #set ($columns = $displayColumns.split('\s*,\s*'))
 #set ($rowCount = $numbertool.toNumber($rowCount).intValue())
-
 #if ($createdAfter)
   #set ($dateFormat = $services.taskmanager.configuration.storageDateFormat)
   #set ($dateTimeFormatter = $xwiki.jodatime.getDateTimeFormatterForPattern($dateFormat))
@@ -267,12 +266,9 @@
   #set ($startDate = $xwiki.jodatime.dateTime.parse($createdAfter, $dateTimeFormatter))
   #set ($endDate = $startDate.plusYears(1000).millis)
 #end
-
 #if ($status != "done")
   #set ($status = "inProgress")
 #end
-
-$spaceFilter
 #set ($extraParams = {
   'space': $spaceFilter,
   'status': $status,
@@ -281,11 +277,9 @@ $spaceFilter
   'reporter': $creator.split('\s*,\s*'),
   'reporter/join_mode': 'or'
 })
-
 #if ($startDate)
   #set ($discard = $extraParams.put('createDate', "${startDate.millis}-${endDate}"))
 #end
-
 #if ("$!tags" != '')
   #set ($discard = $extraParams.put('tasktag', $tags.split('\s*,\s*')))
 #end
@@ -950,7 +944,7 @@ $spaceFilter
       </type>
     </class>
     <property>
-      <defaultValue>render,duedate,assignee,owner</defaultValue>
+      <defaultValue>render,duedate,assignee,owner,createDate</defaultValue>
     </property>
     <property>
       <description/>

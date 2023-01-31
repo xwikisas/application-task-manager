@@ -181,10 +181,6 @@ public class TaskXDOMProcessor
                     MacroBlock newMacroBlock =
                         new MacroBlock(macro.getId(), macro.getParameters(), newContent, macro.isInline());
                     siblings.add(macroIndex, newMacroBlock);
-//                    // Also update the new "render" field of the object.
-//                    taskObject.set(Task.RENDER,
-//                        taskBlockProcessor.renderTaskContent(Collections.singletonList(newMacroBlock),
-//                            syntax.toIdString()), context);
                 } catch (TaskException e) {
                     logger.warn(e.getMessage());
                 }
@@ -203,7 +199,7 @@ public class TaskXDOMProcessor
      * @param syntax the syntax in which the render will be done.
      * @return the render of a task macro in the given syntax.
      */
-    public String renderTaskFromObject(DocumentReference reference, Syntax syntax)
+    public String renderTaskByReference(DocumentReference reference, Syntax syntax)
     {
         try {
             Block block =

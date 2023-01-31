@@ -74,7 +74,7 @@ public class TaskObjectUpdateEventListener extends AbstractTaskEventListener
 
         setTaskNumber(context, taskObj);
         taskObj.set(Task.RENDER,
-            taskXDOMProcessor.renderTaskFromObject(taskObj.getDocumentReference(), document.getSyntax()), context);
+            taskXDOMProcessor.renderTaskByReference(taskObj.getDocumentReference(), document.getSyntax()), context);
 
         if (context.get(TASK_UPDATE_FLAG) != null || taskObj.getStringValue(Task.OWNER).isEmpty()) {
             return;

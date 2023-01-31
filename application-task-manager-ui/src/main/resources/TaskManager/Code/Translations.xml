@@ -41,9 +41,9 @@ taskmanager.notification.statusChange.restFail=Failed to change the status becau
 taskmanager.notification.statusChange.noId=Failed to change the status because the task doesn't have an ID.
 taskmanager.notification.statusChange.inprogress=Changing status..
 
-taskmanager.livetable.description=Task
+taskmanager.livetable.render=Task
 taskmanager.livetable.duedate=Deadline
-taskmanager.livetable.assignees=Assignee(s)
+taskmanager.livetable.assignee=Assignee
 taskmanager.livetable.owner=Location
 taskmanager.livetable.completeDate=Completed on
 taskmanager.livetable.noRights=You don't have view rights for the document that contains this task.
