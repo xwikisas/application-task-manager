@@ -20,6 +20,7 @@
 package com.xwiki.taskmanager;
 
 import org.xwiki.component.annotation.Role;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
 
 import com.xwiki.taskmanager.model.Task;
@@ -39,4 +40,10 @@ public interface TaskManager
      * @return the Task Model of the object inside the page.
      */
     Task getTaskByReference(String reference);
+
+    /**
+     * Delete the tasks that have a certain page as an owner.
+     * @param documentReference the value by which we want to remove a task.
+     */
+    void deleteTasksByOwner(DocumentReference documentReference) throws TaskException;
 }

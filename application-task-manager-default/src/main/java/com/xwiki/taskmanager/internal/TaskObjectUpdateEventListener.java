@@ -66,6 +66,20 @@ public class TaskObjectUpdateEventListener extends AbstractTaskEventListener
     @Override
     protected void processEvent(XWikiDocument document, XWikiContext context, Event event)
     {
+        if (event instanceof DocumentDeletingEvent) {
+            try {
+                XWikiDocument actualDoc = context.getWiki().getDocument(document.getDocumentReference(), context);
+                BaseObject object = actualDoc.getXObject(TASK_CLASS_REFERENCE);
+                if (object != null && !object.getStringValue(Task.OWNER).isEmpty()) {
+                    taskXDOMProcessor.removeTaskMacroCall(document.getDocumentReference(),
+                        resolver.resolve(object.getStringValue(Task.OWNER)), context);
+                }
+            } catch (XWikiException e) {
+                logger.warn("Failed to remove the macro call from the owner document of the task [{}]",
+                    document.getDocumentReference());
+            }
+            return;
+        }
         BaseObject taskObj = document.getXObject(TASK_CLASS_REFERENCE);
 
         if (taskObj == null) {

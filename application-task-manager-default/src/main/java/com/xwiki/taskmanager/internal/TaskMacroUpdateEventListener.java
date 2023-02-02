@@ -45,6 +45,8 @@ import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.DocumentRevisionProvider;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xwiki.taskmanager.TaskException;
+import com.xwiki.taskmanager.TaskManager;
 import com.xwiki.taskmanager.model.Task;
 
 /**
@@ -67,6 +69,9 @@ public class TaskMacroUpdateEventListener extends AbstractTaskEventListener
     @Inject
     private DocumentRevisionProvider revisionProvider;
 
+    @Inject
+    private TaskManager taskManager;
+
     /**
      * Default constructor.
      */
@@ -79,6 +84,14 @@ public class TaskMacroUpdateEventListener extends AbstractTaskEventListener
     @Override
     protected void processEvent(XWikiDocument document, XWikiContext context, Event event)
     {
+        if (event instanceof DocumentDeletingEvent) {
+            try {
+                taskManager.deleteTasksByOwner(document.getDocumentReference());
+            } catch (TaskException e) {
+                logger.warn(e.getMessage(), e);
+            }
+            return;
+        }
         if (context.get(TASK_UPDATE_FLAG) != null) {
             return;
         }

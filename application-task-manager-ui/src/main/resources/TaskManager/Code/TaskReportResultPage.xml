@@ -61,9 +61,9 @@
     #if ($foreach.count > 1)
       #set ($spaceWhere = "${spaceWhere} OR ")
     #end
-    #set ($paramVal = $services.query.parameter().literal("${space}.").anyChars())
-    #set ($spaceWhere = "${spaceWhere}doc.fullName like '${space}.%'")
-    ##set ($discard = $params.put("docspace${foreach.count}", $paramVal))
+    #set ($paramVal = "$!space.replaceAll('([%_!])', '!$1')%")
+    #set ($spaceWhere = "${spaceWhere}doc.fullName like :docspace${foreach.count} escape '!'")
+    #set ($discard = $params.put("docspace${foreach.count}", $paramVal))
   #end
   #set ($extraWhere = "${extraWhere} AND (${spaceWhere})")
 #end

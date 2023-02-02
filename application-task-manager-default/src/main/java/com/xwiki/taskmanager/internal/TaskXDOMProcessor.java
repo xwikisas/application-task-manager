@@ -153,6 +153,9 @@ public class TaskXDOMProcessor
         throws XWikiException
     {
         XWikiDocument ownerDocument = context.getWiki().getDocument(documentReference, context).clone();
+        if (ownerDocument.isNew()) {
+            return;
+        }
         DocumentReference taskDocRef = taskObject.getDocumentReference();
         XDOM content = ownerDocument.getXDOM();
         List<MacroBlock> macros = content.getBlocks(new MacroBlockMatcher(Task.MACRO_NAME), Block.Axes.DESCENDANT);
@@ -212,6 +215,36 @@ public class TaskXDOMProcessor
         } catch (TaskException e) {
             logger.warn(e.getMessage());
             return "";
+        }
+    }
+
+    /**
+     * Remove the task macro call that has the given reference.
+     * @param taskReference the reference that identifies the task macro.
+     * @param location the location of the task macro.
+     * @param context the current context.
+     */
+    public void removeTaskMacroCall(DocumentReference taskReference, DocumentReference location,
+        XWikiContext context)
+    {
+        try {
+            XWikiDocument hostDocument = context.getWiki().getDocument(location, context);
+            XDOM docContent = hostDocument.getXDOM();
+            List<MacroBlock> macros =
+                docContent.getBlocks(new MacroBlockMatcher(Task.MACRO_NAME), Block.Axes.DESCENDANT);
+            for (MacroBlock macro : macros) {
+                DocumentReference macroRef = resolver.resolve(macro.getParameters().getOrDefault(Task.REFERENCE, ""));
+                if (macroRef.equals(taskReference)) {
+                    List<Block> siblings = macro.getParent().getChildren();
+                    siblings.remove(macro);
+                    hostDocument.setContent(docContent);
+                    context.getWiki().saveDocument(hostDocument,
+                        String.format("Removed the task with the reference of [%s]", taskReference), context);
+                    break;
+                }
+            }
+        } catch (XWikiException e) {
+            logger.warn("Failed to remove the possible macro calls from the document [{}]", location);
         }
     }
 

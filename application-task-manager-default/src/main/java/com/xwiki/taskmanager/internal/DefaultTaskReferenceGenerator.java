@@ -19,6 +19,9 @@
  */
 package com.xwiki.taskmanager.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
@@ -44,7 +47,10 @@ import com.xwiki.taskmanager.TaskReferenceGenerator;
 @Singleton
 public class DefaultTaskReferenceGenerator implements TaskReferenceGenerator
 {
+    private static final String TASK_PAGE_NAME_PREFIX = "Task_";
+
     private static final String TASK_MANAGER_SPACE = "TaskManager";
+
     @Inject
     private AuthorizationManager authorizationManager;
 
@@ -57,6 +63,9 @@ public class DefaultTaskReferenceGenerator implements TaskReferenceGenerator
     @Inject
     private EntityReferenceSerializer<String> serializer;
 
+    @Inject
+    private final Map<SpaceReference, Integer> nameOccurences = new HashMap<>();
+
     @Override
     public DocumentReference generate(DocumentReference parent)
     {
@@ -65,8 +74,21 @@ public class DefaultTaskReferenceGenerator implements TaskReferenceGenerator
         if (!authorizationManager.hasAccess(Right.EDIT, context.getUserReference(), parentSpaceRef)) {
             parentSpaceRef = new SpaceReference(parent.getWikiReference().getName(), TASK_MANAGER_SPACE);
         }
-        String parentSpace = serializer.serialize(parentSpaceRef);
-        String name = context.getWiki().getUniquePageName(parentSpace, "Task", context);
-        return new DocumentReference(name, parentSpaceRef);
+        return getUniqueName(parentSpaceRef, context);
+    }
+
+    private DocumentReference getUniqueName(SpaceReference spaceRef, XWikiContext context)
+    {
+
+        int i = nameOccurences.getOrDefault(spaceRef, 0);
+        DocumentReference docRef = new DocumentReference(TASK_PAGE_NAME_PREFIX + i, spaceRef);
+
+        while (context.getWiki().exists(docRef, context)) {
+            i++;
+            docRef = new DocumentReference(TASK_PAGE_NAME_PREFIX + i, spaceRef);
+            nameOccurences.put(spaceRef, i);
+        }
+        nameOccurences.put(spaceRef, ++i);
+        return docRef;
     }
 }

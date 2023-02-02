@@ -20,6 +20,7 @@
 package com.xwiki.taskmanager.internal;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -29,12 +30,17 @@ import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryException;
+import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
+import com.xwiki.taskmanager.TaskException;
 import com.xwiki.taskmanager.TaskManager;
 import com.xwiki.taskmanager.model.Task;
 
@@ -57,6 +63,11 @@ public class DefaultTaskManager implements TaskManager
     @Inject
     private Provider<XWikiContext> contextProvider;
 
+    @Inject
+    private QueryManager queryManager;
+
+    @Inject
+    private EntityReferenceSerializer<String> serializer;
     @Inject
     private Logger logger;
 
@@ -89,5 +100,29 @@ public class DefaultTaskManager implements TaskManager
             logger.error("Failed to retrieve the task from the page [{}]", reference);
             return null;
         }
+    }
+
+    @Override
+    public void deleteTasksByOwner(DocumentReference documentReference) throws TaskException
+    {
+        try {
+            XWikiContext context = contextProvider.get();
+            String statement = ", BaseObject as taskObj, StringProperty as ownerProp "
+                + "WHERE taskObj.name = doc.fullName AND taskObj.className = 'TaskManager.Code.TaskClass' "
+                + "AND taskObj.id = ownerProp.id.id AND ownerProp.id.name = 'owner' "
+                + "AND ownerProp.value like :docRef";
+            Query query = queryManager.createQuery(statement, Query.HQL);
+            query.bindValue("docRef").anyChars().literal(serializer.serialize(documentReference));
+            List<String> results = query.execute();
+            for (String result : results) {
+                DocumentReference taskRef = resolver.resolve(result);
+                XWikiDocument document = context.getWiki().getDocument(taskRef, context);
+                context.getWiki().deleteDocument(document, context);
+            }
+        } catch (QueryException | XWikiException e) {
+            throw new TaskException(String.format("Failed to delete the task documents that had [%s] as owner.",
+                documentReference), e);
+        }
+
     }
 }
