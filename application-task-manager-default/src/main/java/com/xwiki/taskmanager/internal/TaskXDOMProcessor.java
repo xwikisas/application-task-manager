@@ -266,7 +266,7 @@ public class TaskXDOMProcessor
 
         task.setReporter(resolver.resolve(macroParams.get(Task.REPORTER)));
 
-        task.setStatus(macroParams.get(Task.STATUS));
+        task.setStatus(macroParams.getOrDefault(Task.STATUS, "inProgress"));
 
         String strCreateDate = macroParams.getOrDefault(Task.CREATE_DATE, "");
         String strCompletedDate = macroParams.getOrDefault(Task.COMPLETE_DATE, "");
