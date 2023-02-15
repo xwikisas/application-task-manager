@@ -22,6 +22,7 @@ package com.xwiki.taskmanager.macro;
 
 import org.xwiki.properties.annotation.PropertyDisplayHidden;
 import org.xwiki.properties.annotation.PropertyDisplayType;
+import org.xwiki.stability.Unstable;
 
 import com.xwiki.taskmanager.TaskDate;
 import com.xwiki.taskmanager.TaskReference;
@@ -30,6 +31,7 @@ import com.xwiki.taskmanager.TaskReference;
  * @version $Id$
  * @since 1.0
  */
+@Unstable
 public class TaskMacroParameters
 {
     private String reference;

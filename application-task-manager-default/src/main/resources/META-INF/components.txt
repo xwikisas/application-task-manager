@@ -8,5 +8,6 @@ com.xwiki.taskmanager.internal.TaskMacroUpdateEventListener
 com.xwiki.taskmanager.internal.TaskManagerConfigurationSource
 com.xwiki.taskmanager.internal.TaskObjectUpdateEventListener
 com.xwiki.taskmanager.internal.macro.TaskMacro
+com.xwiki.taskmanager.internal.macro.TasksMacro
 com.xwiki.taskmanager.internal.macro.DateMacro
 com.xwiki.taskmanager.internal.rest.DefaultTaskResource

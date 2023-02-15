@@ -17,38 +17,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.xwiki.taskmanager;
+package com.xwiki.taskmanager.macro;
 
 import org.xwiki.stability.Unstable;
 
 /**
- * Exception thrown by the Task Application.
- *
  * @version $Id$
  * @since 1.0
  */
-
 @Unstable
-public class TaskException extends Exception
+public class TasksMacroParameters
 {
-
-    private static final long serialVersionUID = 1L;
+    private String ids;
 
     /**
-     * @param message the exception message
-     * @param cause the cause of this exception
+     * @return a list of comma separated ids of the tasks that need to be displayed.
      */
-    public TaskException(String message, Throwable cause)
+    public String getIds()
     {
-        super(message, cause);
+        return ids;
     }
 
     /**
-     * @param message the exception message
+     * @param ids see ${@link #getIds()}.
      */
-    public TaskException(String message)
+    public void setIds(String ids)
     {
-        super(message);
+        this.ids = ids;
     }
-
 }

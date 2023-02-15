@@ -22,6 +22,7 @@ package com.xwiki.taskmanager.macro;
 
 import org.xwiki.properties.annotation.PropertyDisplayType;
 import org.xwiki.properties.annotation.PropertyMandatory;
+import org.xwiki.stability.Unstable;
 
 import com.xwiki.taskmanager.TaskDate;
 
@@ -29,6 +30,7 @@ import com.xwiki.taskmanager.TaskDate;
  * @version $Id$
  * @since 1.0
  */
+@Unstable
 public class DateMacroParameters
 {
     private String date;
