@@ -126,7 +126,8 @@ public class TasksMacro extends AbstractMacro<TasksMacroParameters>
 
                 blocks.add(new MacroBlock("task", taskParams, taskContent, false));
             } catch (NumberFormatException | TaskException e) {
-                throw new MacroExecutionException(e.getMessage());
+                blocks.add(
+                    new MacroBlock("error", Collections.emptyMap(), e.getMessage(),false));
             }
         }
         return blocks;
