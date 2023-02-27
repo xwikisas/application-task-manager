@@ -23,11 +23,11 @@ package com.xwiki.taskmanager;
 import org.xwiki.stability.Unstable;
 
 /**
- * Task reference for macro picker. The task macro needs a hidden picker that will inject a JavaScript file. This
- * code will fill some fields such as id, createDate, creator.
+ * Task reference for macro picker. The task macro needs a hidden picker that will inject a JavaScript file. This code
+ * will fill some fields such as id, createDate, creator.
  *
- * @since 1.0
  * @version $Id$
+ * @since 1.0
  */
 @Unstable
 public interface TaskReference

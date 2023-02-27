@@ -32,7 +32,6 @@ import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.DocumentReferenceResolver;
 import org.xwiki.rendering.test.integration.RenderingTestSuite;
 import org.xwiki.script.service.ScriptService;
-import org.xwiki.security.authorization.AuthorizationManager;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
 import org.xwiki.skinx.SkinExtension;
@@ -54,7 +53,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(RenderingTestSuite.class)
 @AllComponents
-@RenderingTestSuite.Scope(value = ""/*, pattern = "task1.test"*/)
 public class IntegrationTests
 {
     @RenderingTestSuite.Initialized

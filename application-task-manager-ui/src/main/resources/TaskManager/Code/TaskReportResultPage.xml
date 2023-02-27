@@ -54,7 +54,7 @@
 #end
 #if ("$!request.space" != '')
   #foreach($space in $request.getParameterValues('space'))
-    #if ($foreach.count > 1)
+    #if ($foreach.count &gt; 1)
       #set ($spaceWhere = "${spaceWhere} OR ")
     #end
     ## In versions lower than 13.0 creating a query having an array parameter and a QueryParameter like
@@ -69,7 +69,11 @@
   #set($map = {})
   #gridresultwithfilter_buildJSON("$!request.classname" $request.collist.split(',') "${extraFrom}" "${extraWhere}" $params $map)
   #foreach ($row in $map.rows)
-    #set ($row.name = $doc.getRenderedContent("{{tasks ids='${row.number}'/}}", $doc.syntax))
+    #if ("$!row.number" == '')
+      #set ($row.name = $services.localization.render('taskmanager.livetable.noRights'))
+    #else
+      #set ($row.name = $doc.getRenderedContent("{{tasks ids='${row.number}'/}}", $doc.syntax))
+    #end
   #end
   #jsonResponse($map)
 #end

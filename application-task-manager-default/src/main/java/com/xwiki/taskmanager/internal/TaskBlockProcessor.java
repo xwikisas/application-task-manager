@@ -164,7 +164,7 @@ public class TaskBlockProcessor
 
         if (duedate != null) {
             Map<String, String> dateParams = new HashMap<>();
-            dateParams.put(DATE, storageFormat.format(duedate));
+            dateParams.put("value", storageFormat.format(duedate));
             MacroBlock dateBlock = new MacroBlock(DATE, dateParams, true);
             insertionPoint.addChild(dateBlock);
         }

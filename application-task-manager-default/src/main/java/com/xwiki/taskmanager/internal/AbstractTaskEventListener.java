@@ -52,7 +52,6 @@ public abstract class AbstractTaskEventListener extends AbstractEventListener
     public static final LocalDocumentReference TASK_CLASS_REFERENCE =
         new LocalDocumentReference(Arrays.asList(TASK_MANAGER_SPACE, "Code"), "TaskClass");
 
-
     protected static final String TASK_UPDATE_FLAG = "taskUpdating";
 
     @Inject

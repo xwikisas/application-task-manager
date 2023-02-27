@@ -31,6 +31,7 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
+import org.xwiki.localization.ContextualLocalizationManager;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.rendering.block.Block;
 import org.xwiki.rendering.block.MacroBlock;
@@ -74,6 +75,9 @@ public class TasksMacro extends AbstractMacro<TasksMacroParameters>
     @Inject
     private ContextualAuthorizationManager authorizationManager;
 
+    @Inject
+    private ContextualLocalizationManager localizationManager;
+
     /**
      * Default constructor.
      */
@@ -101,10 +105,8 @@ public class TasksMacro extends AbstractMacro<TasksMacroParameters>
             try {
                 Task task = taskManager.getTask(Integer.parseInt(id));
                 if (!authorizationManager.hasAccess(Right.VIEW, task.getReference())) {
-                    blocks.add(
-                        new MacroBlock("error", Collections.emptyMap(), "You don't have the rights to view this macro.",
-                            false));
-                    continue;
+                    throw new TaskException(
+                        localizationManager.getTranslationPlain("taskmanager.macro.tasks.noRights", id));
                 }
                 Map<String, String> taskParams = new HashMap<>();
                 taskParams.put(Task.REFERENCE, serializer.serialize(task.getReference()));
@@ -127,7 +129,7 @@ public class TasksMacro extends AbstractMacro<TasksMacroParameters>
                 blocks.add(new MacroBlock("task", taskParams, taskContent, false));
             } catch (NumberFormatException | TaskException e) {
                 blocks.add(
-                    new MacroBlock("error", Collections.emptyMap(), e.getMessage(),false));
+                    new MacroBlock("error", Collections.emptyMap(), e.getMessage(), false));
             }
         }
         return blocks;
