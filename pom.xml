@@ -35,6 +35,7 @@
   <description>Create and manage tasks. The app can be purchased individually or part of the XWiki Pro package. Try it free.</description>
   <properties>
     <licensing.version>1.22.1</licensing.version>
+    <confluence.xml.version>9.19.0</confluence.xml.version>
   </properties>
   <issueManagement>
     <system>GitHub</system>
@@ -46,8 +47,59 @@
     <url>https://github.com/xwikisas/application-task-manager/tree/master</url>
     <tag>HEAD</tag>
   </scm>
+  <dependencyManagement>
+    <!-- Fix "Require upper bound dependencies error" -->
+    <dependencies>
+      <dependency>
+        <groupId>org.xwiki.commons</groupId>
+        <artifactId>xwiki-commons-filter-xml</artifactId>
+        <version>${commons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-filter-event-model</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.rendering</groupId>
+        <artifactId>xwiki-rendering-syntax-plain</artifactId>
+        <version>${rendering.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-model-api</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-rendering-async-default</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.platform</groupId>
+        <artifactId>xwiki-platform-filter-event-user</artifactId>
+        <version>${platform.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.rendering</groupId>
+        <artifactId>xwiki-rendering-wikimodel</artifactId>
+        <version>${rendering.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.rendering</groupId>
+        <artifactId>xwiki-rendering-syntax-xwiki21</artifactId>
+        <version>${rendering.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.xwiki.rendering</groupId>
+        <artifactId>xwiki-rendering-syntax-wikimodel</artifactId>
+        <version>${rendering.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <modules>
     <module>application-task-manager-api</module>
+    <module>application-task-manager-default</module>
     <module>application-task-manager-ui</module>
     <module>application-task-manager-xip</module>
   </modules>

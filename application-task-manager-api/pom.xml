@@ -30,12 +30,11 @@
 
   <artifactId>application-task-manager-api</artifactId>
 
+  <properties>
+    <xwiki.jacoco.instructionRatio>0.88</xwiki.jacoco.instructionRatio>
+  </properties>
+
   <dependencies>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-configuration-default</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.xwiki.platform</groupId>
       <artifactId>xwiki-platform-rest-server</artifactId>
@@ -44,52 +43,6 @@
     <dependency>
       <groupId>javax.ws.rs</groupId>
       <artifactId>jsr311-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-model-api</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.platform</groupId>
-      <artifactId>xwiki-platform-skin-api</artifactId>
-      <version>${platform.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-transformation-macro</artifactId>
-      <version>${rendering.version}</version>
-    </dependency>
-    <!-- Testing dependencies -->
-    <dependency>
-      <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-syntax-xwiki21</artifactId>
-      <version>${rendering.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-syntax-xhtml</artifactId>
-      <version>${rendering.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-syntax-event</artifactId>
-      <version>${rendering.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.rendering</groupId>
-      <artifactId>xwiki-rendering-test</artifactId>
-      <version>${rendering.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.xwiki.commons</groupId>
-      <artifactId>xwiki-commons-tool-test-component</artifactId>
-      <version>${commons.version}</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>

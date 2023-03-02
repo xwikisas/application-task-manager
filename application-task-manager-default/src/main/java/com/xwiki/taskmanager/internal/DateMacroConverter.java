@@ -17,38 +17,45 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.xwiki.taskmanager.script;
 
-import javax.inject.Inject;
+package com.xwiki.taskmanager.internal;
+
+import java.util.Map;
+
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
-import org.xwiki.script.service.ScriptService;
-import org.xwiki.stability.Unstable;
-
-import com.xwiki.taskmanager.TaskManagerConfiguration;
+import org.xwiki.contrib.confluence.filter.internal.macros.AbstractMacroConverter;
+import org.xwiki.rendering.listener.Listener;
 
 /**
- * Script service for retrieving information about the Task Manager Application.
+ * Convert the confluence time macro into a date macro.
  *
  * @version $Id$
  * @since 1.0
  */
 @Component
-@Named("taskmanager")
 @Singleton
-@Unstable
-public class TaskManagerScriptService implements ScriptService
+@Named("time")
+public class DateMacroConverter extends AbstractMacroConverter
 {
-    @Inject
-    private TaskManagerConfiguration configuration;
-
-    /**
-     * @return the configuration of the application.
-     */
-    public TaskManagerConfiguration getConfiguration()
+    @Override
+    public void toXWiki(String confluenceId, Map<String, String> confluenceParameters, String confluenceContent,
+        boolean inline, Listener listener)
     {
-        return this.configuration;
+        confluenceParameters.put("format", "yyyy-MM-dd");
+
+        super.toXWiki(confluenceId, confluenceParameters, confluenceContent, inline, listener);
+    }
+
+    @Override
+    protected String toXWikiParameterName(String confluenceParameterName, String id,
+        Map<String, String> confluenceParameters, String confluenceContent)
+    {
+        if (confluenceParameterName.equals("datetime")) {
+            return "value";
+        }
+        return super.toXWikiParameterName(confluenceParameterName, id, confluenceParameters, confluenceContent);
     }
 }

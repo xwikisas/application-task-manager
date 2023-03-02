@@ -19,15 +19,21 @@
  */
 package com.xwiki.taskmanager;
 
+import org.xwiki.component.annotation.Role;
 import org.xwiki.stability.Unstable;
 
 /**
- * The date macro pickers will need to use the date format from the {@link TaskManagerConfiguration}.
+ * Counter that handles the number generation for the tasks.
  *
  * @version $Id$
  * @since 1.0
  */
+@Role
 @Unstable
-public interface TaskDate
+public interface TaskCounter
 {
+    /**
+     * @return the next valid number for a task. -1 if the retrieval failed.
+     */
+    int getNextNumber() throws TaskException;
 }

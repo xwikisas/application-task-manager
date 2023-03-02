@@ -136,12 +136,11 @@ require(['moment-setup'], function () {
       let isTaskMacroModal = !!$('.task-reference').length;
       if (isTaskMacroModal) {
         let modal = $('.modal');
-        let idInput = modal.find("input[name='id']");
+        let idInput = modal.find("input[name='reference']");
         if (idInput.val()) return;
         let createDateInput = modal.find("input[name='createDate']");
-        let creatorInput = modal.find("input[name='creator']");
+        let creatorInput = modal.find("input[name='reporter']");
         var dateFormat = moment().toMomentFormatString($(idInput).data('dateformat'));
-        idInput.val(Math.random().toString(16).slice(2));
         createDateInput.val(moment(new Date()).format(dateFormat));
         let creatorValue = xm.userReference.relativeTo(new XWiki.WikiReference(XWiki.currentWiki)).toString();
         creatorInput.val(creatorValue);

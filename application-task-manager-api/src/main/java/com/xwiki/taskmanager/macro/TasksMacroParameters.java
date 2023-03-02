@@ -17,17 +17,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package com.xwiki.taskmanager;
+package com.xwiki.taskmanager.macro;
 
 import org.xwiki.stability.Unstable;
 
 /**
- * The date macro pickers will need to use the date format from the {@link TaskManagerConfiguration}.
- *
  * @version $Id$
  * @since 1.0
  */
 @Unstable
-public interface TaskDate
+public class TasksMacroParameters
 {
+    private String ids;
+
+    /**
+     * @return a list of comma separated ids of the tasks that need to be displayed.
+     */
+    public String getIds()
+    {
+        return ids;
+    }
+
+    /**
+     * @param ids see {@link #getIds()}.
+     */
+    public void setIds(String ids)
+    {
+        this.ids = ids;
+    }
 }

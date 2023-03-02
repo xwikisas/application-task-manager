@@ -46,31 +46,31 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <assignees>
+    <assignee>
       <cache>0</cache>
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
-      <displayType>input</displayType>
+      <displayType>select</displayType>
       <freeText/>
       <hint/>
       <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
-      <name>assignees</name>
-      <number>3</number>
-      <picker>1</picker>
-      <prettyName>assignees</prettyName>
+      <name>assignee</name>
+      <number>9</number>
+      <picker>0</picker>
+      <prettyName>Assignee</prettyName>
       <relationalStorage>0</relationalStorage>
       <separator> </separator>
       <separators/>
-      <size>20</size>
-      <sort/>
+      <size>6</size>
+      <sort>none</sort>
       <unmodifiable>0</unmodifiable>
-      <usesList>0</usesList>
+      <usesList>1</usesList>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
-    </assignees>
+    </assignee>
     <completeDate>
       <customDisplay/>
       <dateFormat>dd/MM/yyyy HH:mm:ss</dateFormat>
@@ -78,7 +78,7 @@
       <emptyIsToday>1</emptyIsToday>
       <hint/>
       <name>completeDate</name>
-      <number>8</number>
+      <number>14</number>
       <picker>1</picker>
       <prettyName>completeDate</prettyName>
       <size>20</size>
@@ -87,21 +87,6 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
     </completeDate>
-    <completed>
-      <customDisplay/>
-      <defaultValue/>
-      <disabled>0</disabled>
-      <displayFormType>select</displayFormType>
-      <displayType/>
-      <hint/>
-      <name>completed</name>
-      <number>7</number>
-      <prettyName>completed</prettyName>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-    </completed>
     <createDate>
       <customDisplay/>
       <dateFormat>dd/MM/yyyy HH:mm:ss</dateFormat>
@@ -109,7 +94,7 @@
       <emptyIsToday>1</emptyIsToday>
       <hint/>
       <name>createDate</name>
-      <number>2</number>
+      <number>12</number>
       <picker>1</picker>
       <prettyName>createDate</prettyName>
       <size>20</size>
@@ -118,77 +103,342 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
     </createDate>
-    <creator>
+    <dependencies>
       <cache>0</cache>
+      <classname/>
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
-      <displayType>input</displayType>
+      <displayType>checkbox</displayType>
       <freeText/>
       <hint/>
+      <idField/>
       <largeStorage>0</largeStorage>
-      <multiSelect>0</multiSelect>
-      <name>creator</name>
-      <number>4</number>
-      <picker>1</picker>
-      <prettyName>creator</prettyName>
-      <relationalStorage>0</relationalStorage>
+      <multiSelect>1</multiSelect>
+      <name>dependencies</name>
+      <number>11</number>
+      <picker>0</picker>
+      <prettyName>Dependencies</prettyName>
+      <relationalStorage>1</relationalStorage>
       <separator> </separator>
       <separators/>
-      <size>20</size>
-      <sort/>
+      <size>1</size>
+      <sort>value</sort>
+      <sql/>
       <unmodifiable>0</unmodifiable>
-      <usesList>0</usesList>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
-    </creator>
-    <deadline>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+    </dependencies>
+    <description>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>description</name>
+      <number>4</number>
+      <prettyName>Task description</prettyName>
+      <script/>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
+    </description>
+    <duedate>
       <customDisplay/>
       <dateFormat>dd/MM/yyyy HH:mm:ss</dateFormat>
       <disabled>0</disabled>
       <emptyIsToday>1</emptyIsToday>
       <hint/>
-      <name>deadline</name>
-      <number>3</number>
+      <name>duedate</name>
+      <number>10</number>
       <picker>1</picker>
-      <prettyName>deadline</prettyName>
+      <prettyName>Due Date</prettyName>
       <size>20</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.DateClass</classType>
-    </deadline>
-    <description>
+    </duedate>
+    <name>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>name</name>
+      <number>1</number>
+      <picker>0</picker>
+      <prettyName>Task name</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </name>
+    <number>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>number</name>
+      <number>2</number>
+      <numberType>integer</numberType>
+      <prettyName>Task number</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </number>
+    <owner>
+      <cache>0</cache>
+      <classname/>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <idField/>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>owner</name>
+      <number>15</number>
+      <picker>1</picker>
+      <prettyName>owner</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>1</size>
+      <sort/>
+      <sql/>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.PageClass</classType>
+    </owner>
+    <progress>
+      <customDisplay/>
+      <disabled>0</disabled>
+      <hint/>
+      <name>progress</name>
+      <number>7</number>
+      <numberType>integer</numberType>
+      <prettyName>Progress</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
+    </progress>
+    <project>
+      <cache>0</cache>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <idField>project</idField>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>project</name>
+      <number>3</number>
+      <picker>0</picker>
+      <prettyName>Project</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>1</size>
+      <sort>none</sort>
+      <sql/>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <valueField>project</valueField>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+    </project>
+    <render>
       <contenttype>---</contenttype>
       <customDisplay/>
       <disabled>0</disabled>
       <editor>---</editor>
       <hint/>
-      <name>description</name>
-      <number>8</number>
+      <name>render</name>
+      <number>16</number>
       <picker>1</picker>
-      <prettyName>description</prettyName>
+      <prettyName>render</prettyName>
       <rows>5</rows>
       <size>40</size>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
-    </description>
-    <id>
+    </render>
+    <reporter>
+      <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
       <hint/>
-      <name>id</name>
-      <number>6</number>
-      <picker>1</picker>
-      <prettyName>id</prettyName>
-      <size>30</size>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>reporter</name>
+      <number>8</number>
+      <picker>0</picker>
+      <prettyName>Reporter</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>6</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <usesList>1</usesList>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
+    </reporter>
+    <severity>
+      <cache>0</cache>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayType/>
+      <freeText/>
+      <hint/>
+      <idField>severity</idField>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>severity</name>
+      <number>7</number>
+      <picker>0</picker>
+      <prettyName>Severity</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators>6</separators>
+      <size>1</size>
+      <sort>none</sort>
+      <sql/>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
-    </id>
+      <valueField>severity</valueField>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+    </severity>
+    <status>
+      <cache>0</cache>
+      <customDisplay/>
+      <defaultValue/>
+      <disabled>0</disabled>
+      <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <idField>status</idField>
+      <largeStorage>0</largeStorage>
+      <multiSelect>0</multiSelect>
+      <name>status</name>
+      <number>5</number>
+      <picker>0</picker>
+      <prettyName>Status</prettyName>
+      <relationalStorage>0</relationalStorage>
+      <separator> </separator>
+      <separators/>
+      <size>1</size>
+      <sort>none</sort>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
+    </status>
   </class>
+  <object>
+    <name>TaskManager.Code.TaskClass</name>
+    <number>0</number>
+    <className>XWiki.ClassSheetBinding</className>
+    <guid>c5350c5f-6625-4f49-9f75-b80355041e12</guid>
+    <class>
+      <name>XWiki.ClassSheetBinding</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <sheet>
+        <cache>0</cache>
+        <classname/>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <hint/>
+        <idField/>
+        <multiSelect>0</multiSelect>
+        <name>sheet</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Sheet</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators/>
+        <size>30</size>
+        <sort>none</sort>
+        <sql/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <valueField/>
+        <classType>com.xpn.xwiki.objects.classes.PageClass</classType>
+      </sheet>
+    </class>
+    <property>
+      <sheet>TaskManager.Code.TaskSheet</sheet>
+    </property>
+  </object>
+  <object>
+    <name>TaskManager.Code.TaskClass</name>
+    <number>0</number>
+    <className>XWiki.DocumentSheetBinding</className>
+    <guid>1fff11d6-f613-49cd-864c-5ddab0a128f0</guid>
+    <class>
+      <name>XWiki.DocumentSheetBinding</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <sheet>
+        <cache>0</cache>
+        <classname/>
+        <customDisplay/>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <hint/>
+        <idField/>
+        <multiSelect>0</multiSelect>
+        <name>sheet</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Sheet</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators/>
+        <size>30</size>
+        <sort>none</sort>
+        <sql/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <valueField/>
+        <classType>com.xpn.xwiki.objects.classes.PageClass</classType>
+      </sheet>
+    </class>
+    <property>
+      <sheet>XWiki.ClassSheet</sheet>
+    </property>
+  </object>
 </xwikidoc>

@@ -20,10 +20,8 @@ package com.xwiki.taskmanager.internal.rest;
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,10 +30,7 @@ import javax.ws.rs.core.Response;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
-import org.xwiki.rendering.block.Block;
-import org.xwiki.rendering.block.MacroBlock;
-import org.xwiki.rendering.block.XDOM;
-import org.xwiki.rendering.block.match.MacroBlockMatcher;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.rest.XWikiRestException;
 import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
@@ -43,7 +38,7 @@ import org.xwiki.security.authorization.Right;
 
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
-import com.xwiki.taskmanager.TaskManagerConfiguration;
+import com.xpn.xwiki.objects.BaseObject;
 import com.xwiki.taskmanager.model.Task;
 import com.xwiki.taskmanager.rest.TaskResource;
 
@@ -58,14 +53,14 @@ import com.xwiki.taskmanager.rest.TaskResource;
 @Singleton
 public class DefaultTaskResource extends ModifiablePageResource implements TaskResource
 {
+    private static final LocalDocumentReference TASK_CLASS_REFERENCE =
+        new LocalDocumentReference(Arrays.asList("TaskManager", "Code"), "TaskClass");
+
     @Inject
     private ContextualAuthorizationManager contextualAuthorizationManager;
 
-    @Inject
-    private TaskManagerConfiguration configuration;
-
     @Override
-    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String taskId, Boolean completed)
+    public Response changeTaskStatus(String wikiName, String spaces, String pageName, String status)
         throws XWikiRestException
     {
         DocumentReference docRef = new DocumentReference(pageName, getSpaceReference(spaces, wikiName));
@@ -76,25 +71,21 @@ public class DefaultTaskResource extends ModifiablePageResource implements TaskR
 
         try {
             XWikiDocument document = getXWikiContext().getWiki().getDocument(docRef, getXWikiContext()).clone();
-            XDOM documentContent = document.getXDOM();
-            List<MacroBlock> macros = documentContent.getBlocks(new MacroBlockMatcher("task"), Block.Axes.DESCENDANT);
+            BaseObject taskObject = document.getXObject(TASK_CLASS_REFERENCE);
 
-            Optional<MacroBlock> selectedMacro = macros.stream()
-                .filter((macroBlock) -> macroBlock.getParameters().getOrDefault(Task.ID, "").equals(taskId))
-                .findFirst();
-
-            if (!selectedMacro.isPresent()) {
+            if (taskObject == null) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
 
-            String completeDate = new SimpleDateFormat(configuration.getStorageDateFormat()).format(new Date());
-            selectedMacro.get().setParameter(Task.STATUS, completed.toString());
+            taskObject.set(Task.STATUS, status, getXWikiContext());
 
-            selectedMacro.get().setParameter(Task.COMPLETE_DATE, completed ? completeDate : "");
+            Date completeDate = null;
+            if (status.equals("done")) {
+                completeDate = new Date();
+            }
+            taskObject.set(Task.COMPLETE_DATE, completeDate, getXWikiContext());
 
-            document.setContent(documentContent);
-
-            getXWikiContext().getWiki().saveDocument(document, "Changed task status!", getXWikiContext());
+            getXWikiContext().getWiki().saveDocument(document, "Task status was updated.", getXWikiContext());
 
             return Response.ok().build();
         } catch (XWikiException e) {

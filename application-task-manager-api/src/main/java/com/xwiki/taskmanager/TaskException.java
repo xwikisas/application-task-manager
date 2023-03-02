@@ -22,12 +22,30 @@ package com.xwiki.taskmanager;
 import org.xwiki.stability.Unstable;
 
 /**
- * The date macro pickers will need to use the date format from the {@link TaskManagerConfiguration}.
+ * Exception thrown by the Task Application.
  *
  * @version $Id$
  * @since 1.0
  */
 @Unstable
-public interface TaskDate
+public class TaskException extends Exception
 {
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @param message the exception message
+     * @param cause the cause of this exception
+     */
+    public TaskException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
+
+    /**
+     * @param message the exception message
+     */
+    public TaskException(String message)
+    {
+        super(message);
+    }
 }

@@ -24,7 +24,7 @@
   <web>TaskManager.Code</web>
   <name>Translations</name>
   <language/>
-  <defaultLanguage>en</defaultLanguage>
+  <defaultLanguage/>
   <translation>0</translation>
   <creator>xwiki:XWiki.Admin</creator>
   <parent>TaskManager.Code.WebHome</parent>
@@ -41,12 +41,14 @@ taskmanager.notification.statusChange.restFail=Failed to change the status becau
 taskmanager.notification.statusChange.noId=Failed to change the status because the task doesn't have an ID.
 taskmanager.notification.statusChange.inprogress=Changing status..
 
-taskmanager.livetable.description=Task
-taskmanager.livetable.deadline=Deadline
-taskmanager.livetable.assignees=Assignee(s)
-taskmanager.livetable.doc.title=Location
+taskmanager.livetable.name=Task
+taskmanager.livetable.duedate=Deadline
+taskmanager.livetable.assignee=Assignee
+taskmanager.livetable.owner=Location
 taskmanager.livetable.completeDate=Completed on
 taskmanager.livetable.noRights=You don't have view rights for the document that contains this task.
+
+taskmanager.macro.tasks.noRights=You are not allowed to view task ({0}).
 
 rendering.macro.task.name=Task Macro
 rendering.macro.task.description=Create a task that you can assign an user to using the mention macro and use the date macro to set a deadline!
@@ -78,7 +80,7 @@ rendering.macro.tasks-report-macro.parameter.completed.description=Display all t
 rendering.macro.tasks-report-macro.parameter.limit.name=Live table limit
 rendering.macro.tasks-report-macro.parameter.limit.description=Specifies how many tasks should be displayed on a single page.
 rendering.macro.tasks-report-macro.parameter.columns.name=Live table display columns
-rendering.macro.tasks-report-macro.parameter.columns.description=A list task properties that you want the table to display. The possible values are: description, deadline, assignees, doc.title (task location) and completeDate.
+rendering.macro.tasks-report-macro.parameter.columns.description=A list task properties that you want the table to display. The possible values are: description, deadline, assignee, doc.title (task location) and completeDate.
 rendering.macro.tasks-report-macro.parameter.sortBy.name=Sort By
 rendering.macro.tasks-report-macro.parameter.sortBy.description=The column that will be used to order the table.
 rendering.macro.tasks-report-macro.parameter.id.name=Table ID

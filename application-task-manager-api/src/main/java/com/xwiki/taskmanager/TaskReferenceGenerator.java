@@ -19,15 +19,26 @@
  */
 package com.xwiki.taskmanager;
 
+import org.xwiki.component.annotation.Role;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
 
 /**
- * The date macro pickers will need to use the date format from the {@link TaskManagerConfiguration}.
+ * Handles the reference generation for the tasks.
  *
  * @version $Id$
  * @since 1.0
  */
+@Role
 @Unstable
-public interface TaskDate
+public interface TaskReferenceGenerator
 {
+    /**
+     * Generate a reference for a task, relative to its parent.
+     *
+     * @param parent the parent of the task.
+     * @return a reference to the task. It can be either a child of the parent, a sibling or it can be a child to the
+     *     default TaskManager home, depending on the rights of the current user.
+     */
+    DocumentReference generate(DocumentReference parent) throws TaskException;
 }
