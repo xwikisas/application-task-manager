@@ -30,18 +30,16 @@ import org.xwiki.contrib.confluence.filter.internal.macros.AbstractMacroConverte
 import org.xwiki.rendering.listener.Listener;
 
 /**
- * Convert mention macro.
+ * Convert the confluence time macro into a date macro.
  *
  * @version $Id$
  * @since 1.0
  */
 @Component
 @Singleton
-@Named("mention")
+@Named("time")
 public class DateMacroConverter extends AbstractMacroConverter
 {
-    private static final String REFERENCE_PARAMETER_KEY = "reference";
-
     @Override
     public void toXWiki(String confluenceId, Map<String, String> confluenceParameters, String confluenceContent,
         boolean inline, Listener listener)
